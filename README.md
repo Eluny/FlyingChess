@@ -18,3 +18,5 @@ Hello FlyingChess~
 4月22日：</br>
   1.页面UI的优化,整理了单机游戏的逻辑.</br>
   2.打通联网游戏的业务逻辑,但是没有测试没有测试没有测试,没有硬件设备支持啊,我都是靠脑补的啊...心好累
+  
+  ![image](https://github.com/Eluny/FlyingChess/blob/master/UML20160422.png?raw=true)
