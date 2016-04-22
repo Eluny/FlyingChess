@@ -1,3 +1,26 @@
 <resources>
     <string name="app_name">FlyingChess</string>
+
+    <!-- 欢迎页面~-->
+    <string name="local_game">单机游戏</string>
+    <string name="net_game">联网游戏</string>
+
+    <!-- 游戏配置页面 : configue-->
+    <string name="human">普通玩家</string>
+    <string name="computer">电脑</string>
+    <string name="none">无~</string>
+    <string name="start">开始游戏~</string>
+
+    <!-- 游戏页面~：Game-->
+    <string name="welcome">欢迎你啊~小伙伴~</string>
+    <string name="start_game">"游戏开始啦~现在是蓝色飞机摇骰子~"</string>
+    <string name="your_turn">现在是你下棋了喔,小伙子~摇骰子？~</string>
+    <string name="select_plane">请选择合适的飞机~飞行~</string>
+    <string name="dicing">~骰子点数为：</string>
+    <string name="key_back_slogan">亲，一点都不想让你退出啊~</string>
+
+    <!-- 房间列表~：Room-->
+    <string name="room_list">房间列表~</string>
+    <string name="create_room">~</string>
+
 </resources>

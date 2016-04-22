@@ -4,17 +4,17 @@ package com.project.flyingchess.eventbus;
  * Created by Administrator on 2016/4/11.
  */
 public class WinnerEvent {
-    private String name;
+    private String msgContent;
 
-    public WinnerEvent(String name) {
-        this.name = name;
+    public WinnerEvent(String msgContent) {
+        this.msgContent = msgContent;
     }
 
-    public String getName() {
-        return name;
+    public String getMsgContent() {
+        return msgContent;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setMsgContent(String msgContent) {
+        this.msgContent = msgContent;
     }
 }

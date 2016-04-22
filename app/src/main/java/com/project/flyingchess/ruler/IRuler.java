@@ -4,16 +4,15 @@ package com.project.flyingchess.ruler;
  * Created by Administrator on 2016/4/11.
  */
 public interface IRuler {
+    int PORT = 23333;
+
     void start();
 
-    void isWin();//谁是胜利的一方呀~
-    //void isLose();
+    void restart();
 
-    void isEnd();//游戏是否终止~
+    void init();
 
-    //Player nextPalyer();//游戏顺序~
-
-    //void
+    void uninit();
 
     void dice();//扔个骰子
 

@@ -1,11 +1,12 @@
 package com.project.flyingchess.ruler;
 
+import android.content.Context;
+
 import com.orhanobut.logger.Logger;
-import com.project.flyingchess.eventbus.UpdateDiceEvent;
-import com.project.flyingchess.eventbus.WinnerEvent;
+import com.project.flyingchess.eventbus.UpdateTitleEvent;
 import com.project.flyingchess.model.Step;
-import com.project.flyingchess.player.Color;
 import com.project.flyingchess.player.Player;
+import com.project.flyingchess.utils.Color;
 import com.project.flyingchess.widget.ChessBoard;
 
 import org.greenrobot.eventbus.EventBus;
@@ -19,40 +20,57 @@ import java.util.Random;
  * Created by Administrator on 2016/4/11.
  */
 public class DefaultRuler implements IRuler{
-    private boolean isStart = false;
-
-    private List<Player> mList;
-    private HashMap<Player,Integer> mFinishMap = new HashMap<>();
-    private Player currentPlayer;
+    private Context mContext;
 
     private static int random;
+
+    private Player currentPlayer;
+    private List<Player> mList;
+    private List<Player> mWinnerList = new ArrayList<>();
     private List<Step> stepList = new ArrayList<>();//记录棋局的行走情况
 
-    private static final int FINISH_NUM = 4;
+    private static final int FINISH_NUM = 1;
+    private HashMap<Player,Integer> mFinishMap = new HashMap<>();
+
+    private boolean isDicing = false;
 
     public DefaultRuler(List<Player> mList) {
         this.mList = mList;
+
+        init();
+    }
+
+
+    public void init() {
+        mWinnerList.clear();
+        stepList.clear();
+        mFinishMap.clear();
+
+        for(Player player:mList){
+            player.setRuler(this);//循环引用~我就不造会不会死了
+            player.setFinish(false);
+            mFinishMap.put(player,0);
+        }
+    }
+
+    @Override
+    public void uninit() {
     }
 
     @Override
     public void start() {
         Logger.d("The Game is Start~");
-        for(Player player:mList){
-            player.setRuler(this);//循环引用~我就不造会不会死了
-            mFinishMap.put(player,0);
-        }
+        EventBus.getDefault().post(new UpdateTitleEvent("游戏开始啦~"));
 
-        isStart = true;
+        nextPalyer();
+        currentPlayer.onYourTurn();
+        isDicing = true;
     }
 
     @Override
-    public void isWin() {
-
-    }
-
-    @Override
-    public void isEnd() {
-        Logger.d("The Game is Over~");
+    public void restart() {
+        init();
+        start();
     }
 
     public void nextPalyer() {
@@ -61,6 +79,8 @@ public class DefaultRuler implements IRuler{
             return;
         }
         int currentIndex = mList.indexOf(currentPlayer) + 1;
+        if(mWinnerList.size() != 0)
+            mList.remove(mWinnerList.get(mWinnerList.size()-1));
         Logger.d(currentIndex + ": current");
         currentPlayer = (currentIndex != mList.size() ? mList.get(currentIndex) : mList.get(0));
     }
@@ -69,11 +89,9 @@ public class DefaultRuler implements IRuler{
 
     @Override
     public void dice() {
-        if(isStart){
+        if(isDicing){
             random = randomGen.nextInt(6) + 1;
-            EventBus.getDefault().post(new UpdateDiceEvent(random));
-            nextPalyer();
-            Logger.d("currentPlayer ~ :" + currentPlayer.getColor() + " dicing : " + random);
+            isDicing = false;
             currentPlayer.think(random);
         }
     }
@@ -108,25 +126,21 @@ public class DefaultRuler implements IRuler{
                         if(theSelectedPlaneTag + random == ChessBoard.TAG_BLUE_END){
                             mFinishMap.put(currentPlayer,mFinishMap.get(currentPlayer)+1);
                             if(mFinishMap.get(currentPlayer) == FINISH_NUM){
-                                EventBus.getDefault().post(new WinnerEvent(currentPlayer.getName()));
+                                currentPlayer.setFinish(true);
+                                mWinnerList.add(currentPlayer);
+                                if(mList.size() <= 1) {
+                                    Logger.d(mWinnerList.toString());
+                                    EventBus.getDefault().post(mWinnerList);
+                                    return;
+                                }
                             }
                         }
                     }
                     else
                         step = new Step(planeTag,ChessBoard.TAG_BLUE_END * 2 - (theSelectedPlaneTag + random));
                 }
-                /*else if(theSelectedPlaneTag + random <= ChessBoard.TAG_BLUE_CORNER){
-                    step = new Step(planeTag,theSelectedPlaneTag + random);
-                }else{
-                    if(theSelectedPlaneTag < ChessBoard.TAG_BLUE_CORNER){
-                        step = new Step(planeTag,ChessBoard.TAG_BLUE_CORNER_START + theSelectedPlaneTag + random - ChessBoard.TAG_BLUE_CORNER);
-                    }else{
-                        if(theSelectedPlaneTag + random <= ChessBoard.TAG_BLUE_END)
-                            step = new Step(planeTag,theSelectedPlaneTag + random);
-                        else
-                            step = new Step(planeTag,ChessBoard.TAG_BLUE_END * 2 - (theSelectedPlaneTag + random));
-                    }
-                }*/
+                stepList.add(step);
+                currentPlayer.putChess(step);
                 break;
             case Color.YELLOW:
                 if(ChessBoard.TAG_LARGE <= theSelectedPlaneTag || ChessBoard.TAG_SMALL >= theSelectedPlaneTag)
@@ -151,7 +165,14 @@ public class DefaultRuler implements IRuler{
                         if(theSelectedPlaneTag + random == ChessBoard.TAG_YELLOW_END){
                             mFinishMap.put(currentPlayer,mFinishMap.get(currentPlayer)+1);
                             if(mFinishMap.get(currentPlayer) == FINISH_NUM){
-                                EventBus.getDefault().post(new WinnerEvent(currentPlayer.getName()));
+                                currentPlayer.setFinish(true);
+                                mWinnerList.add(currentPlayer);
+                                if(mList.size() <= 1) {
+                                    Logger.d(mWinnerList.toString());
+                                    EventBus.getDefault().post(mWinnerList);
+                                    return;
+                                }
+                                //EventBus.getDefault().post(new WinnerEvent(currentPlayer.getName()));
                             }
                         }
                     }
@@ -163,6 +184,8 @@ public class DefaultRuler implements IRuler{
                     else
                         step = new Step(planeTag,(theSelectedPlaneTag + random) % ChessBoard.TAG_RECTANGLE_LARGE);
                 }
+                stepList.add(step);
+                currentPlayer.putChess(step);
                 break;
             case Color.RED:
                 if(ChessBoard.TAG_LARGE <= theSelectedPlaneTag || ChessBoard.TAG_SMALL >= theSelectedPlaneTag)
@@ -187,7 +210,13 @@ public class DefaultRuler implements IRuler{
                         if(theSelectedPlaneTag + random == ChessBoard.TAG_RED_END){
                             mFinishMap.put(currentPlayer,mFinishMap.get(currentPlayer)+1);
                             if(mFinishMap.get(currentPlayer) == FINISH_NUM){
-                                EventBus.getDefault().post(new WinnerEvent(currentPlayer.getName()));
+                                currentPlayer.setFinish(true);
+                                mWinnerList.add(currentPlayer);
+                                if(mList.size() <= 1) {
+                                    Logger.d(mWinnerList.toString());
+                                    EventBus.getDefault().post(mWinnerList);
+                                    return;
+                                }
                             }
                         }
                     }
@@ -199,6 +228,8 @@ public class DefaultRuler implements IRuler{
                     else
                         step = new Step(planeTag,(theSelectedPlaneTag + random) % ChessBoard.TAG_RECTANGLE_LARGE);
                 }
+                stepList.add(step);
+                currentPlayer.putChess(step);
                 break;
             case Color.GREEN:
                 if(ChessBoard.TAG_LARGE <= theSelectedPlaneTag || ChessBoard.TAG_SMALL >= theSelectedPlaneTag)
@@ -223,7 +254,12 @@ public class DefaultRuler implements IRuler{
                         if(theSelectedPlaneTag + random == ChessBoard.TAG_GREEN_END){
                             mFinishMap.put(currentPlayer,mFinishMap.get(currentPlayer)+1);
                             if(mFinishMap.get(currentPlayer) == FINISH_NUM){
-                                EventBus.getDefault().post(new WinnerEvent(currentPlayer.getName()));
+                                currentPlayer.setFinish(true);
+                                mWinnerList.add(currentPlayer);
+                                if(mList.size() <= 1) {
+                                    Logger.d(mWinnerList.toString());
+                                    EventBus.getDefault().post(mWinnerList);
+                                }
                             }
                         }
                     }
@@ -235,13 +271,15 @@ public class DefaultRuler implements IRuler{
                     else
                         step = new Step(planeTag,(theSelectedPlaneTag + random) % ChessBoard.TAG_RECTANGLE_LARGE);
                 }
+                stepList.add(step);
+                currentPlayer.putChess(step);
+                break;
+            default:
                 break;
         }
 
-        random = 0;
-        //EventBus.getDefault().post(new UpdateDiceEvent(0));
-        Logger.d("step:" + step);
-        stepList.add(step);
-        currentPlayer.putChess(step);
+        nextPalyer();
+        isDicing = true;
+        currentPlayer.onYourTurn();
     }
 }

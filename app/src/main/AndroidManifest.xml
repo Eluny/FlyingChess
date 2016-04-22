@@ -2,6 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.project.flyingchess">
 
+    <!--com.project.flyingchess-->
+
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:name=".App"
         android:allowBackup="true"
@@ -9,12 +17,26 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.GameActivity">
+        <activity
+            android:name=".activity.WelcomeActivity"
+            android:theme="@android:style/Theme.NoTitleBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".activity.GameActivity"
+            android:theme="@android:style/Theme.NoTitleBar"/>
+
+        <activity
+            android:name=".activity.ConfigueActivity"
+            android:theme="@android:style/Theme.NoTitleBar"/>
+
+        <activity
+            android:name=".activity.RoomActivity"
+            android:theme="@android:style/Theme.NoTitleBar"/>
     </application>
 
 </manifest>

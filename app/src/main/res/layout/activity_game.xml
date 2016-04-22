@@ -3,35 +3,52 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".activity.GameActivity">
 
-    <TextView
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/bg_game"
+        android:scaleType="fitXY"/>
+
+    <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="GameActivity!" />
+        android:src="@drawable/icon_plane_1"
+        android:layout_margin="5dp"/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/icon_plane_2"
+        android:layout_alignParentRight="true"
+        android:layout_margin="5dp"/>
+
 
     <com.project.flyingchess.widget.ChessBoard
         android:id="@+id/v_chessboard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="15dp"
         android:layout_centerVertical="true"/>
 
-    <TextView
-        android:id="@+id/tv_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:gravity="center_vertical"
         android:layout_centerHorizontal="true"
-        android:layout_above="@+id/v_chessboard"
-        android:textSize="20sp"
-        android:ellipsize="marquee"
-        android:singleLine="true"
-        android:marqueeRepeatLimit="marquee_forever"
-        android:focusable="true"
-        android:focusableInTouchMode="true" />
+        android:layout_above="@+id/v_chessboard">
+        <com.project.flyingchess.widget.UpMarqueeTextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="@string/welcome"
+            android:textColor="#fff"
+            android:layout_centerInParent="true"/>
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/tv_time"

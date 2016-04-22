@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp"
+    android:paddingTop="5dp"
+    android:paddingBottom="5dp"
+    android:background="#fff">
+
+    <Button
+        android:id="@+id/btn_create_game"
+        android:layout_width="100dp"
+        android:layout_height="55dp"
+        android:layout_margin="5dp"
+        android:text="创建游戏"
+        android:textColor="#fff"
+        android:background="@drawable/btn_bg" />
+
+    <Button
+        android:id="@+id/btn_join_game"
+        android:layout_width="100dp"
+        android:layout_height="55dp"
+        android:layout_margin="5dp"
+        android:text="加入游戏"
+        android:textColor="#fff"
+        android:background="@drawable/btn_bg"/>
+
+    <Button
+        android:id="@+id/btn_cancel"
+        android:layout_width="100dp"
+        android:layout_height="55dp"
+        android:layout_margin="5dp"
+        android:text="取   消"
+        android:textColor="#fff"
+        android:background="@drawable/btn_bg"/>
+
+</LinearLayout>

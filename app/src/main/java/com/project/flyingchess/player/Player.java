@@ -3,6 +3,8 @@ package com.project.flyingchess.player;
 import com.project.flyingchess.model.Step;
 import com.project.flyingchess.ruler.IRuler;
 
+import java.util.List;
+
 /**
  * Created by Administrator on 2016/4/13.
  */
@@ -10,9 +12,12 @@ public class Player {
     private String name;
     private int color;
     private IRuler ruler;
-    private int finishNum;
+    private boolean isFinish;
 
-    public Player(String name,int color) {
+    public Player() {
+    }
+
+    public Player(String name, int color) {
         this.name = name;
         this.color = color;
     }
@@ -41,15 +46,25 @@ public class Player {
         this.ruler = ruler;
     }
 
-    public int getFinishNum() {
-        return finishNum;
+    public boolean isFinish() {
+        return isFinish;
     }
 
-    public void setFinishNum(int finishNum) {
-        this.finishNum = finishNum;
+    public void setFinish(boolean finish) {
+        isFinish = finish;
     }
 
     public void think(int random){}
 
     public void putChess(Step step){}
+
+    public void onYourTurn(){}
+
+    public void onYourTurn(boolean isYourTurn,String content){}
+
+    public void start(int color){}
+
+    public void end(List<Player> mWinnerList){}
+
+    public void restart(){}
 }

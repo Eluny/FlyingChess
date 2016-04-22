@@ -11,7 +11,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.project.flyingchess.R;
-import com.project.flyingchess.player.Color;
+import com.project.flyingchess.utils.Color;
 import com.project.flyingchess.widget.shape.Circle;
 import com.project.flyingchess.widget.shape.MyShape;
 import com.project.flyingchess.widget.shape.Rectangle;
@@ -40,8 +40,8 @@ public class ChessBoard extends View {
     private Bitmap[] plane_normal = new Bitmap[4];
     //private Bitmap[] plane_select = new Bitmap[4];
 
-    private Map<Integer, Integer> planeNum;//棋子编号->格子编号
-    public static Map<Integer, MyShape> planePosition;//格子编号->图形对象（即对应的矩形或三角形）
+    private Map<Integer, Integer> planeNum = new HashMap<Integer, Integer>();//棋子编号->格子编号
+    public static Map<Integer, MyShape> planePosition = new HashMap<Integer, MyShape>();//格子编号->图形对象（即对应的矩形或三角形）
 
     private Rectangle[] rectangles;
     private Rectangle[] square;//正方形
@@ -109,7 +109,7 @@ public class ChessBoard extends View {
     }
 
     private void initPlaneInfo() {
-        planeNum = new HashMap<Integer, Integer>();
+        planeNum.clear();
         for (int i = 0; i < 4; i++) {
             planeNum.put(i + 1, i + 77);
         }
@@ -123,7 +123,7 @@ public class ChessBoard extends View {
             planeNum.put(i + 13, i + 89);
         }
 
-        planePosition = new HashMap<Integer, MyShape>();
+        planePosition.clear();
     }
 
     private void initBitmap(Context context) {
@@ -427,6 +427,11 @@ public class ChessBoard extends View {
 
     public void setSelectFromColor(int color){
         this.theSelectedColor = color;
+        invalidate();
+    }
+
+    public void restart() {
+        initPlaneInfo();
         invalidate();
     }
 

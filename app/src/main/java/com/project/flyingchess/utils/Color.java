@@ -1,4 +1,4 @@
-package com.project.flyingchess.player;
+package com.project.flyingchess.utils;
 
 import android.support.annotation.ColorInt;
 

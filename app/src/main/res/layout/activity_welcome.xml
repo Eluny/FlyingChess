@@ -7,11 +7,43 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".activity.GameActivity">
+    tools:context=".activity.GameActivity"
+    android:background="@drawable/bg_flychess">
 
-    <TextView
+    <ImageView
+        android:id="@+id/iv_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="WelcomeActivity!" />
+        android:src="@drawable/icon_title"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"/>
+
+    <Button
+        android:id="@+id/btn_single_game"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/iv_title"
+        android:layout_marginTop="35dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+        android:text="@string/local_game"
+        android:textSize="20sp"
+        android:textColor="#fff"
+        android:background="@drawable/btn_bg"/>
+
+    <Button
+        android:id="@+id/btn_net_game"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/btn_single_game"
+        android:layout_marginTop="35dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+        android:text="@string/net_game"
+        android:textSize="20sp"
+        android:textColor="#fff"
+        android:background="@drawable/btn_bg"/>
 
 </RelativeLayout>
