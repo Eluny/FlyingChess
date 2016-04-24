@@ -14,6 +14,7 @@ import com.peak.salut.SalutDevice;
 import com.peak.salut.SalutServiceData;
 import com.project.flyingchess.R;
 import com.project.flyingchess.activity.ConfigueActivity;
+import com.project.flyingchess.eventbus.GameStartEvent;
 import com.project.flyingchess.eventbus.UpdateDiceEvent;
 import com.project.flyingchess.eventbus.UpdateTitleEvent;
 import com.project.flyingchess.eventbus.WinnerEvent;
@@ -54,12 +55,14 @@ public class ClientRuler implements IRuler,SalutDataCallback {
 
     @Override
     public void init() {
+        currentPlayer.setRuler(this);
+
         if (!Salut.isWiFiEnabled(mContext)) {
             Salut.enableWiFi(mContext);
         }
 
         SalutDataReceiver mDataReceiver = new SalutDataReceiver((Activity) mContext, this);
-        SalutServiceData mServiceData = new SalutServiceData("clinet", PORT, currentPlayer.getName());
+        SalutServiceData mServiceData = new SalutServiceData("server", PORT, currentPlayer.getName());
         mSalut = new Salut(mDataReceiver, mServiceData, new SalutCallback() {
             @Override
             public void call() {
@@ -125,6 +128,8 @@ public class ClientRuler implements IRuler,SalutDataCallback {
             random = randomGen.nextInt(6) + 1;
             EventBus.getDefault().post(new UpdateDiceEvent(random));
 
+            Toast.makeText(mContext,"摇个骰子~",Toast.LENGTH_LONG).show();
+
             //告诉大家~你摇了啥~好来个直播嘛。by:hunnny
             Message message = MessageWrapper.getDiceMessage(random,currentPlayer.getColor());
             mSalut.sendToHost(message, new SalutCallback() {
@@ -157,10 +162,12 @@ public class ClientRuler implements IRuler,SalutDataCallback {
         String str = (String) data;
         try {
             Message message = LoganSquare.parse(str, Message.class);
+            Toast.makeText(mContext,message.toString(),Toast.LENGTH_LONG).show();;
             int type = message.mMessageType;
             switch (type) {
                 case Message.MSG_TYPE_HOST_BEGIN:
                     EventBus.getDefault().post(new UpdateTitleEvent(mContext.getString(R.string.start_game)));
+                    EventBus.getDefault().post(new GameStartEvent());
                     currentPlayer.setColor(message.mChessColor);//游戏开始的时候~顺便确认一下用户的骰子~颜色,名字~
                     switch (message.mChessColor){
                         case Color.BLUE:
@@ -197,10 +204,12 @@ public class ClientRuler implements IRuler,SalutDataCallback {
                 case Message.MSG_TYPE_EXIT:
                     break;
                 case Message.MSG_TYPE_YOUR_TURN:
+                    EventBus.getDefault().post(new UpdateDiceEvent(0));
                     EventBus.getDefault().post(new UpdateTitleEvent(mContext.getString(R.string.your_turn)));
                     isYourTurn = true;
                     break;
                 case Message.MSG_TYPE_NOT_YOUR_TURN:
+                    EventBus.getDefault().post(new UpdateDiceEvent(0));
                     EventBus.getDefault().post(new UpdateTitleEvent(message.mMessage));
                     break;
                 case Message.MSG_TYPE_DICE:

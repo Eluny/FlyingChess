@@ -52,8 +52,8 @@ public class MessageWrapper {
         return new Message.Builder(Message.MSG_TYPE_GAME_RESTART_RESP).agreeRestart(agreeRestart).build();
     }
 
-    public static Message getGameExitMessage() {
-        return new Message.Builder(Message.MSG_TYPE_EXIT).build();
+    public static Message getGameExitMessage(String name) {
+        return new Message.Builder(Message.MSG_TYPE_EXIT).message(name).build();
     }
 
     public static Message getGameMoveBackReqMessage() {

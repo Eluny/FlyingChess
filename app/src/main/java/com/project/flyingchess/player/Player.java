@@ -67,4 +67,7 @@ public class Player {
     public void end(List<Player> mWinnerList){}
 
     public void restart(){}
+
+    public void exit(){}//因为各种莫名其妙的细节~
 }
+

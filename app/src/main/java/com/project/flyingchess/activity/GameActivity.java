@@ -12,8 +12,10 @@ import com.peak.salut.SalutDevice;
 import com.project.flyingchess.R;
 import com.project.flyingchess.dialog.PeersDialog;
 import com.project.flyingchess.dialog.StartGameDialog;
+import com.project.flyingchess.dialog.WaitingGameStartDialog;
 import com.project.flyingchess.dialog.WaitingPlayerDialog;
 import com.project.flyingchess.dialog.WinnerDialog;
+import com.project.flyingchess.eventbus.GameStartEvent;
 import com.project.flyingchess.eventbus.UpdateDiceEvent;
 import com.project.flyingchess.eventbus.UpdateGameInfoEvent;
 import com.project.flyingchess.eventbus.UpdateTimeEvent;
@@ -58,6 +60,7 @@ public class GameActivity extends BaseActivity implements View.OnClickListener{
     private StartGameDialog startGameDialog;
     private WaitingPlayerDialog waitingPlayerDialog;
     private PeersDialog peersDialog;
+    private WaitingGameStartDialog waitingGameStartDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +105,7 @@ public class GameActivity extends BaseActivity implements View.OnClickListener{
                 initStartGameDialog();
                 initWaitingPlayerDialog();
                 initPeersDialog();
+                initWaitingStartGameDialog();
                 break;
             default:
                 Logger.d("莫名其妙的错误啊~亲。 ");
@@ -111,10 +115,14 @@ public class GameActivity extends BaseActivity implements View.OnClickListener{
         initWinnerDialog();
     }
 
+    private void initWaitingStartGameDialog() {
+        waitingGameStartDialog = new WaitingGameStartDialog(GameActivity.this, R.style.NoTitleDialog);
+        waitingGameStartDialog.setCanceledOnTouchOutside(false);
+    }
+
     private void initWinnerDialog() {
         winnerDialog = new WinnerDialog(GameActivity.this, R.style.NoTitleDialog);
-        winnerDialog.setCanceledOnTouchOutside(false
-        );
+        winnerDialog.setCanceledOnTouchOutside(false);
         winnerDialog.setRestartListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -144,6 +152,7 @@ public class GameActivity extends BaseActivity implements View.OnClickListener{
         waitingPlayerDialog.setBeginListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                waitingPlayerDialog.dismiss();
                 Toast.makeText(mContext,"begin~",Toast.LENGTH_SHORT).show();
                 ruler.start();
             }
@@ -151,8 +160,7 @@ public class GameActivity extends BaseActivity implements View.OnClickListener{
         waitingPlayerDialog.setCancelListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ruler.uninit();
-
+                //ruler.uninit();
                 waitingPlayerDialog.dismiss();
                 startGameDialog.show();
             }
@@ -182,6 +190,7 @@ public class GameActivity extends BaseActivity implements View.OnClickListener{
 
                 startGameDialog.dismiss();
                 peersDialog.show();
+                peersDialog.findPeers();
             }
         });
 
@@ -327,7 +336,13 @@ public class GameActivity extends BaseActivity implements View.OnClickListener{
     public void onEventMainThread(SalutDevice device) {
         peersDialog.dismiss();
         ((ClientRuler)ruler).setServerDevice(device);//这样写真的好嘛~？
+        waitingGameStartDialog.show();
         ruler.start();
+    }
+
+    @Subscribe
+    public void onEventMainThread(GameStartEvent msg) {
+        waitingGameStartDialog.dismiss();
     }
 
     /*public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -345,7 +360,11 @@ public class GameActivity extends BaseActivity implements View.OnClickListener{
     protected void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
-        if(ruler != null) ruler.uninit();
+        try {
+            if(ruler != null) ruler.uninit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         startGameDialog.dismiss();
     }
 

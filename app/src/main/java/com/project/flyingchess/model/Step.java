@@ -1,10 +1,12 @@
 package com.project.flyingchess.model;
 
 import com.bluelinelabs.logansquare.annotation.JsonField;
+import com.bluelinelabs.logansquare.annotation.JsonObject;
 
 /**
  * Created by Administrator on 2016/4/13.
  */
+@JsonObject
 public class Step {
     //private int random;
     @JsonField
@@ -12,6 +14,9 @@ public class Step {
 
     @JsonField
     private int shapeTag;
+
+    public Step() {
+    }
 
     public Step(int planeTag, int shapeTag) {
         this.planeTag = planeTag;

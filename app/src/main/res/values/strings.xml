@@ -18,6 +18,7 @@
     <string name="select_plane">请选择合适的飞机~飞行~</string>
     <string name="dicing">~骰子点数为：</string>
     <string name="key_back_slogan">亲，一点都不想让你退出啊~</string>
+    <string name="wait_for_start">等待游戏开始~</string>
 
     <!-- 房间列表~：Room-->
     <string name="room_list">房间列表~</string>

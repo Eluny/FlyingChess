@@ -42,9 +42,16 @@ public class PeersDialog extends Dialog {
 		init();
 	}
 
+	public void findPeers(){
+		mList.clear();
+		deviceAdpater.notifyDataSetChanged();
+		pb_loading.setVisibility(View.VISIBLE);
+	}
+
 	public void updateView(List<SalutDevice> deviceList){
 		mList.clear();
 		mList.addAll(deviceList);
+		pb_loading.setVisibility(View.GONE);
 
 		deviceAdpater.notifyDataSetChanged();
 	}

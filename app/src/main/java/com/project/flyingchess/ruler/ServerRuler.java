@@ -14,6 +14,8 @@ import com.peak.salut.SalutDataReceiver;
 import com.peak.salut.SalutDevice;
 import com.peak.salut.SalutServiceData;
 import com.project.flyingchess.R;
+import com.project.flyingchess.activity.ConfigueActivity;
+import com.project.flyingchess.eventbus.UpdateDiceEvent;
 import com.project.flyingchess.eventbus.UpdateGameInfoEvent;
 import com.project.flyingchess.eventbus.UpdateTitleEvent;
 import com.project.flyingchess.model.Message;
@@ -97,9 +99,25 @@ public class ServerRuler implements IRuler,SalutDataCallback {
                 Toast.makeText(mContext, "startNetworkService, onWifiDeviceConnected, device:" + salutDevice.deviceName, Toast.LENGTH_SHORT).show();
                 if(mColorList.size() != 0){
                     ClientPlayer player = new ClientPlayer(salutDevice.deviceName, mColorList.remove(randomGen.nextInt(mColorList.size())), salutDevice);
+                    switch (player.getColor()){
+                        case Color.BLUE:
+                            player.setName(ConfigueActivity.PLAYER_1);
+                            break;
+                        case Color.YELLOW:
+                            player.setName(ConfigueActivity.PLAYER_2);
+                            break;
+                        case Color.RED:
+                            player.setName(ConfigueActivity.PLAYER_3);
+                            break;
+                        case Color.GREEN:
+                            player.setName(ConfigueActivity.PLAYER_4);
+                            break;
+                    }
+                    player.setRuler(ServerRuler.this);
                     mList.add(player);
                 }else{
                     ClientPlayer player = new ClientPlayer(salutDevice.deviceName, Color.NONE, salutDevice);
+                    player.setRuler(ServerRuler.this);
                     mEyeList.add(player);
                 }
                 EventBus.getDefault().post(new UpdateGameInfoEvent("比赛人数:" + mList.size() + "观看人数:" + mEyeList.size()));
@@ -121,6 +139,10 @@ public class ServerRuler implements IRuler,SalutDataCallback {
 
     @Override
     public void uninit(){
+        Toast.makeText(mContext,"uninit~",Toast.LENGTH_SHORT).show();
+
+        currentPlayer.exit();//离开的时候给个消息通知下呗。
+
         if (mSalut.isRunningAsHost) {
             mSalut.stopNetworkService(false);
         } else {
@@ -168,6 +190,7 @@ public class ServerRuler implements IRuler,SalutDataCallback {
 
     public void myTurn(Boolean isTurn,String content){//第一次写~灰常尴尬。为了满足我的强迫症，足足琢磨了半天。hiahiahia~
         if(isTurn) isYourTurn = true;//大兄弟是你的机会鸟~
+        EventBus.getDefault().post(new UpdateDiceEvent(0));
         EventBus.getDefault().post(new UpdateTitleEvent(content));
     }
 
@@ -446,6 +469,7 @@ public class ServerRuler implements IRuler,SalutDataCallback {
         String str = (String) data;
         try {
             Message message = LoganSquare.parse(str, Message.class);
+            Toast.makeText(mContext,message.toString(),Toast.LENGTH_LONG);
             int type = message.mMessageType;
             switch (type) {
                 case Message.MSG_TYPE_HOST_BEGIN:
@@ -465,6 +489,7 @@ public class ServerRuler implements IRuler,SalutDataCallback {
                 case Message.MSG_TYPE_MOVE_BACK_RESP:
                     break;
                 case Message.MSG_TYPE_EXIT:
+                    Toast.makeText(mContext, message.mMessage + "退出了~", Toast.LENGTH_LONG);
                     break;
                 case Message.MSG_TYPE_DICE://收到了摇骰子的信号，故来摇一个骰子~
                     for(Player player:mList){
@@ -482,6 +507,8 @@ public class ServerRuler implements IRuler,SalutDataCallback {
                             player.think(message.mRandom);
                     }
 
+                    random = message.mRandom;
+                    EventBus.getDefault().post(new UpdateDiceEvent(message.mRandom));
                     EventBus.getDefault().post(new UpdateTitleEvent(mContext.getString(R.string.dicing) + message.mRandom));
                     break;
                 case Message.MSG_TYPE_SELECT_PLANE:

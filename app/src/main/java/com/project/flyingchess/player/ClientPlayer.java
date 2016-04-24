@@ -93,6 +93,7 @@ public class ClientPlayer extends Player {
         });
     }
 
+    @Override
     public void restart(){
         Message message = MessageWrapper.getGameRestartReqMessage();
         ((ServerRuler)getRuler()).getmSalut().sendToDevice(mSalutDevice, message, new SalutCallback() {
@@ -102,4 +103,16 @@ public class ClientPlayer extends Player {
             }
         });
     }
+
+    @Override
+    public void exit(){
+        Message message = MessageWrapper.getGameExitMessage(getName());
+        ((ServerRuler)getRuler()).getmSalut().sendToDevice(mSalutDevice, message, new SalutCallback() {
+            @Override
+            public void call() {
+                Logger.d("sendToDevice, send data failed :" + mSalutDevice.instanceName);
+            }
+        });
+    }
+
 }

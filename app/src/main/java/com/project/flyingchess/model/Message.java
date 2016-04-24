@@ -128,4 +128,12 @@ public class Message {
             return new Message(this);
         }
     }
+
+    @Override
+    public String toString() {
+        return "Message{" +
+                "mMessageType=" + mMessageType +
+                ", mMessage='" + mMessage + '\'' +
+                '}';
+    }
 }
