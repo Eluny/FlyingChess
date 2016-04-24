@@ -21,6 +21,11 @@ Hello FlyingChess~
 4月24日：
   对同一wifi下联机游戏的测试，改了些许bug~尽可能做到和单机游戏一样的交互...总归还是有bug的。但是...思路就是这个样子的。</br>
   ps:非常恶心。但是会坚持...
-  ![image](https://github.com/Eluny/FlyingChess/blob/master/UML20160422.png?raw=true)
 ###补充：
+  1.类图关系：</br>
+  ![UML](https://github.com/Eluny/FlyingChess/blob/master/UML20160422.png?raw=true)</br>
+  2.联网的逻辑：[Salut](https://github.com/markrjr/Salut),大概看了下是封装了WifiP2pManager,WifiManager,还有传输数据的逻辑吧.嗯，有待深挖。</br>
+  3.棋盘跳转的逻辑：贴两张图,自己体会:
+  ![代码~](http://7xor0b.com1.z0.glb.clouddn.com/flychess_1.png)
+  ![图解~](http://7xor0b.com1.z0.glb.clouddn.com/flychess_2.png)
 
