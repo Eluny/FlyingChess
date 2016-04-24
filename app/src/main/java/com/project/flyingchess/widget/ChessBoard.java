@@ -4,7 +4,10 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.PathEffect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -37,6 +40,8 @@ public class ChessBoard extends View {
 
     //public boolean isPaint;
     private Paint[] paints = new Paint[5];
+    private Paint[] dashs = new Paint[4];
+    private Path[] dashPaths = new Path[4];
     private Bitmap[] plane_normal = new Bitmap[4];
     //private Bitmap[] plane_select = new Bitmap[4];
 
@@ -156,12 +161,12 @@ public class ChessBoard extends View {
             triangle[i] = new Triangle();
         }
 
-        square = new Rectangle[36];
+        square = new Rectangle[40];
         for (int i = 0; i < square.length; i++) {
             square[i] = new Rectangle();
         }
 
-        circles = new Circle[93];
+        circles = new Circle[97];
         for (int i = 0; i < circles.length; i++) {
             circles[i] = new Circle();
         }
@@ -182,17 +187,48 @@ public class ChessBoard extends View {
 
         paints[4].setStyle(Paint.Style.FILL);
         paints[4].setColor(0xb9fce701);
+
+        //虚线
+        for (int i = 0; i < dashs.length; i++) {
+            dashs[i] = new Paint();
+            dashs[i].setStyle(Paint.Style.STROKE);
+            dashs[i].setStrokeWidth(4);
+            PathEffect effects = new DashPathEffect(new float[]{1,2,4,8},1);
+            dashs[i].setPathEffect(effects);
+
+            dashPaths[i] = new Path();
+        }
     }
 
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         //if (!isPaint) {
-            drawRect(canvas);
-            drawTri(canvas);
-            drawCircle(canvas);
-            //isPaint = true;
+        drawRect(canvas);
+        drawTri(canvas);
+        drawCircle(canvas);
+        drawDash(canvas);
+        //isPaint = true;
         //}
         drawChess(canvas);
+    }
+
+    private void drawDash(Canvas canvas) {
+        dashs[0].setColor(Color.GREEN_);
+        dashPaths[0].moveTo(circles[5].getX(), circles[5].getY());
+        dashPaths[0].lineTo(circles[17].getX(), circles[17].getY());
+        canvas.drawPath(dashPaths[0], dashs[0]);
+        dashs[1].setColor(Color.BLUE_);
+        dashPaths[1].moveTo(circles[18].getX(), circles[18].getY());
+        dashPaths[1].lineTo(circles[30].getX(), circles[30].getY());
+        canvas.drawPath(dashPaths[1], dashs[1]);
+        dashs[2].setColor(Color.YELLOW_);
+        dashPaths[2].moveTo(circles[31].getX(), circles[31].getY());
+        dashPaths[2].lineTo(circles[43].getX(), circles[43].getY());
+        canvas.drawPath(dashPaths[2], dashs[2]);
+        dashs[3].setColor(Color.RED_);
+        dashPaths[3].moveTo(circles[44].getX(), circles[44].getY());
+        dashPaths[3].lineTo(circles[4].getX(), circles[4].getY());
+        canvas.drawPath(dashPaths[3], dashs[3]);
     }
 
     private void drawChess(Canvas canvas) {
@@ -384,6 +420,12 @@ public class ChessBoard extends View {
         square[33].setCoord(getMeasuredWidth() - 2 * mGridWidth, getMeasuredHeight() - 4 * mGridHeight, getMeasuredWidth(), getMeasuredHeight() - 2 * mGridHeight, 90, paints[3]);
         square[34].setCoord(getMeasuredWidth() - 4 * mGridWidth, getMeasuredHeight() - 2 * mGridHeight, getMeasuredWidth() - 2 * mGridWidth, getMeasuredHeight(), 91, paints[3]);
         square[35].setCoord(getMeasuredWidth() - 2 * mGridWidth, getMeasuredHeight() - 2 * mGridHeight, getMeasuredWidth(), getMeasuredHeight(), 92, paints[3]);
+
+        //四个起点
+        square[36].setCoord(4 * mGridWidth + BOARD_MARGIN, getMeasuredHeight() - mGridHeight, 5 * mGridWidth + BOARD_MARGIN, getMeasuredHeight(), 93, paints[0]);
+        square[37].setCoord(4 * mGridWidth + BOARD_MARGIN, 0, 5 * mGridWidth + BOARD_MARGIN, mGridHeight, 94, paints[1]);
+        square[38].setCoord(12 * mGridWidth + BOARD_MARGIN, 0, 13 * mGridWidth + BOARD_MARGIN, mGridHeight, 95, paints[2]);
+        square[39].setCoord(12 * mGridWidth + BOARD_MARGIN, getMeasuredHeight() - mGridHeight, 13 * mGridWidth + BOARD_MARGIN, getMeasuredHeight(), 96, paints[3]);
     }
 
     /*
