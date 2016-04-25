@@ -10,10 +10,15 @@ import android.graphics.Path;
 import android.graphics.PathEffect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.orhanobut.logger.Logger;
 import com.project.flyingchess.R;
+import com.project.flyingchess.model.Plane;
+import com.project.flyingchess.other.Constants;
+import com.project.flyingchess.ruler.DefaultRuler;
 import com.project.flyingchess.utils.Color;
 import com.project.flyingchess.widget.shape.Circle;
 import com.project.flyingchess.widget.shape.MyShape;
@@ -45,7 +50,8 @@ public class ChessBoard extends View {
     private Bitmap[] plane_normal = new Bitmap[4];
     //private Bitmap[] plane_select = new Bitmap[4];
 
-    private Map<Integer, Integer> planeNum = new HashMap<Integer, Integer>();//棋子编号->格子编号
+    public static Plane[] planes = new Plane[16];
+    public static Map<Integer, Integer> planeNum = new HashMap<Integer, Integer>();//棋子编号->格子编号
     public static Map<Integer, MyShape> planePosition = new HashMap<Integer, MyShape>();//格子编号->图形对象（即对应的矩形或三角形）
 
     private Rectangle[] rectangles;
@@ -54,6 +60,19 @@ public class ChessBoard extends View {
     private Circle[] circles;
 
     private OnSelectPlaneListener onSelectPlaneListener;
+
+    //也是标志位置
+    public static int TAG_BLUE_BASE_1 = 77; public static int TAG_BLUE_BASE_2 = 78;
+    public static int TAG_BLUE_BASE_3 = 79; public static int TAG_BLUE_BASE_4 = 80;
+
+    public static int TAG_YELLOW_BASE_1 = 81; public static int TAG_YELLOW_BASE_2 = 82;
+    public static int TAG_YELLOW_BASE_3 = 83; public static int TAG_YELLOW_BASE_4 = 84;
+
+    public static int TAG_RED_BASE_1 = 85; public static int TAG_RED_BASE_2 = 86;
+    public static int TAG_RED_BASE_3 = 87; public static int TAG_RED_BASE_4 = 88;
+
+    public static int TAG_GREEN_BASE_1 = 89; public static int TAG_GREEN_BASE_2 = 90;
+    public static int TAG_GREEN_BASE_3 = 91; public static int TAG_GREEN_BASE_4 = 92;
 
     //标志坐标~
     public static int TAG_BLUE_START = 0;public static int TAG_BLUE_JUMP = 2;
@@ -114,6 +133,21 @@ public class ChessBoard extends View {
     }
 
     private void initPlaneInfo() {
+        //初始化16个棋子
+        for (int i = 0; i < 4; i++) {
+            planes[i] = new Plane(i + 1, false, false, false);
+        }
+        for (int i = 0; i < 4; i++) {
+            planes[i+4] = new Plane(i + 5, false, false, false);
+        }
+        for (int i = 0; i < 4; i++) {
+            planes[i+8] = new Plane(i + 9, false, false, false);
+        }
+        for (int i = 0; i < 4; i++) {
+            planes[i+12] = new Plane(i + 13, false, false, false);
+        }
+
+        //初始化哈希表
         planeNum.clear();
         for (int i = 0; i < 4; i++) {
             planeNum.put(i + 1, i + 77);
@@ -423,9 +457,9 @@ public class ChessBoard extends View {
 
         //四个起点
         square[36].setCoord(4 * mGridWidth + BOARD_MARGIN, getMeasuredHeight() - mGridHeight, 5 * mGridWidth + BOARD_MARGIN, getMeasuredHeight(), 93, paints[0]);
-        square[37].setCoord(4 * mGridWidth + BOARD_MARGIN, 0, 5 * mGridWidth + BOARD_MARGIN, mGridHeight, 94, paints[1]);
+        square[37].setCoord(0, 4 * mGridHeight + BOARD_MARGIN, mGridWidth, 5 * mGridHeight + BOARD_MARGIN, 94, paints[1]);
         square[38].setCoord(12 * mGridWidth + BOARD_MARGIN, 0, 13 * mGridWidth + BOARD_MARGIN, mGridHeight, 95, paints[2]);
-        square[39].setCoord(12 * mGridWidth + BOARD_MARGIN, getMeasuredHeight() - mGridHeight, 13 * mGridWidth + BOARD_MARGIN, getMeasuredHeight(), 96, paints[3]);
+        square[39].setCoord(getMeasuredWidth() - mGridWidth, 12 * mGridHeight + BOARD_MARGIN, getMeasuredWidth(), 13 * mGridHeight + BOARD_MARGIN, 96, paints[3]);
     }
 
     /*
@@ -451,6 +485,18 @@ public class ChessBoard extends View {
                 if(theSelectedColor == Color.NONE) return false;
                 for (int i = theSelectedColor * 4 + 1; i <= theSelectedColor * 4 + 4; i++) {
                     int tmp = planeNum.get(i);
+                    //暂时添加
+                    if ((DefaultRuler.random != Constants.CAN_FLY) && (tmp == TAG_BLUE_BASE_1 || tmp == TAG_BLUE_BASE_2 || tmp == TAG_BLUE_BASE_3 || tmp == TAG_BLUE_BASE_4
+                            || tmp == TAG_YELLOW_BASE_1 || tmp == TAG_YELLOW_BASE_2 || tmp == TAG_BLUE_BASE_3 || tmp == TAG_YELLOW_BASE_4
+                            || tmp == TAG_RED_BASE_1 || tmp == TAG_RED_BASE_2 || tmp == TAG_RED_BASE_3 || tmp == TAG_RED_BASE_4
+                            || tmp == TAG_GREEN_BASE_1 || tmp == TAG_GREEN_BASE_2 || tmp == TAG_GREEN_BASE_3 || tmp == TAG_GREEN_BASE_4)) {
+                        Logger.d("TRUE");
+                        //break;
+                        continue;
+                    }else{
+                        Logger.d("FALSE");
+                    }
+                    //
                     MyShape shape = planePosition.get(tmp);
                     if(shape.isPointInRegion(x,y)&& tmp != TAG_BLUE_END && tmp != TAG_RED_END && tmp != TAG_YELLOW_END && tmp != TAG_RED_END){
                         //theSelectedPlaneTag = i;

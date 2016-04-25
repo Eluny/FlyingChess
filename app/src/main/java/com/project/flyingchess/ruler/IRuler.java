@@ -16,5 +16,7 @@ public interface IRuler {
 
     void dice();//扔个骰子
 
+    void nextPalyer();
+
     void handle(int planeTag,int theSelectedPlaneTag);
 }

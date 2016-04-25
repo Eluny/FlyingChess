@@ -3,8 +3,10 @@ package com.project.flyingchess.ruler;
 import android.content.Context;
 
 import com.orhanobut.logger.Logger;
+import com.project.flyingchess.eventbus.UpdateDiceEvent;
 import com.project.flyingchess.eventbus.UpdateTitleEvent;
 import com.project.flyingchess.model.Step;
+import com.project.flyingchess.other.Constants;
 import com.project.flyingchess.player.Player;
 import com.project.flyingchess.utils.Color;
 import com.project.flyingchess.widget.ChessBoard;
@@ -22,7 +24,7 @@ import java.util.Random;
 public class DefaultRuler implements IRuler{
     private Context mContext;
 
-    private static int random;
+    public static int random;    //把private改成了public
 
     private Player currentPlayer;
     private List<Player> mList;
@@ -92,8 +94,60 @@ public class DefaultRuler implements IRuler{
         if(isDicing){
             random = randomGen.nextInt(6) + 1;
             isDicing = false;
-            currentPlayer.think(random);
+            if (isAllCanNotFly(currentPlayer.getColor())) {
+                EventBus.getDefault().post(new UpdateDiceEvent(random));
+                EventBus.getDefault().post(new UpdateTitleEvent(currentPlayer.getName() + "摇到的点数为：" + random));
+                nextPalyer();
+                isDicing = true;
+                currentPlayer.onYourTurn();
+            } else {
+                currentPlayer.think(random);
+            }
         }
+    }
+
+    public boolean isAllCanNotFly(int color) {
+        if (color == Color.BLUE) {
+//            if (random != Constants.CAN_FLY && !ChessBoard.planes[0].isPre() && !ChessBoard.planes[1].isPre()
+//                    && !ChessBoard.planes[2].isPre() && !ChessBoard.planes[3].isPre()) {
+//                return true;
+//            }
+            if (random != Constants.CAN_FLY && (ChessBoard.planeNum.get(1) == ChessBoard.TAG_BLUE_BASE_1) && (ChessBoard.planeNum.get(2) == ChessBoard.TAG_BLUE_BASE_2)
+                    && (ChessBoard.planeNum.get(3) == ChessBoard.TAG_BLUE_BASE_3) && (ChessBoard.planeNum.get(4) == ChessBoard.TAG_BLUE_BASE_4)) {
+                return true;
+            }
+        }
+        if (color == Color.YELLOW) {
+//            if (random != Constants.CAN_FLY && !ChessBoard.planes[4].isPre() && !ChessBoard.planes[5].isPre()
+//                    && !ChessBoard.planes[6].isPre() && !ChessBoard.planes[7].isPre()) {
+//                return true;
+//            }
+            if (random != Constants.CAN_FLY && (ChessBoard.planeNum.get(5) == ChessBoard.TAG_YELLOW_BASE_1) && (ChessBoard.planeNum.get(6) == ChessBoard.TAG_YELLOW_BASE_2)
+                    && (ChessBoard.planeNum.get(7) == ChessBoard.TAG_YELLOW_BASE_3) && (ChessBoard.planeNum.get(8) == ChessBoard.TAG_YELLOW_BASE_4)) {
+                return true;
+            }
+        }
+        if (color == Color.RED) {
+//            if (random != Constants.CAN_FLY && !ChessBoard.planes[8].isPre() && !ChessBoard.planes[9].isPre()
+//                    && !ChessBoard.planes[10].isPre() && !ChessBoard.planes[11].isPre()) {
+//                return true;
+//            }
+            if (random != Constants.CAN_FLY && (ChessBoard.planeNum.get(9) == ChessBoard.TAG_RED_BASE_1) && (ChessBoard.planeNum.get(10) == ChessBoard.TAG_RED_BASE_2)
+                    && (ChessBoard.planeNum.get(11) == ChessBoard.TAG_RED_BASE_3) && (ChessBoard.planeNum.get(12) == ChessBoard.TAG_RED_BASE_4)) {
+                return true;
+            }
+        }
+        if (color == Color.GREEN) {
+//            if (random != Constants.CAN_FLY && !ChessBoard.planes[12].isPre() && !ChessBoard.planes[13].isPre()
+//                    && !ChessBoard.planes[14].isPre() && !ChessBoard.planes[15].isPre()) {
+//                return true;
+//            }
+            if (random != Constants.CAN_FLY && (ChessBoard.planeNum.get(13) == ChessBoard.TAG_GREEN_BASE_1) && (ChessBoard.planeNum.get(14) == ChessBoard.TAG_GREEN_BASE_2)
+                    && (ChessBoard.planeNum.get(15) == ChessBoard.TAG_GREEN_BASE_3) && (ChessBoard.planeNum.get(16) == ChessBoard.TAG_GREEN_BASE_4)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -101,8 +155,19 @@ public class DefaultRuler implements IRuler{
         Logger.d("planeTag : " + planeTag + " ,theSelectedPlaneTag : " + theSelectedPlaneTag);
         //TODO:这里写的是...逻辑上的控制~反馈给player~让它自己去控制棋盘~这样做是因为...想把联网的和本地的写一块~
         Step step = null;
+//        switch (currentPlayer.getColor()) {
+//            case Color.BLUE:
+//                if (random != Constants.CAN_FLY && !ChessBoard.planes[planeTag].isPre()) {
+//                    break;
+//                } else if (random == 6) {
+//
+//                }
+//        }
         switch (currentPlayer.getColor()){
             case Color.BLUE:
+                //暂时添加
+
+                //
                 if(ChessBoard.TAG_LARGE <= theSelectedPlaneTag || ChessBoard.TAG_SMALL >= theSelectedPlaneTag)
                     if((ChessBoard.TAG_BLUE_START + random - ChessBoard.TAG_BLUE_JUMP) % 4 == 0)
                         step = new Step(planeTag,ChessBoard.TAG_BLUE_START + random + 4);
