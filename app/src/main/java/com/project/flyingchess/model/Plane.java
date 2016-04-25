@@ -9,11 +9,13 @@ public class Plane implements Serializable{
     private int planeTag;
     private boolean isFinish;
     private boolean isSelect;
+    private boolean isPre;
 
-    public Plane(int planeTag, boolean isFinish, boolean isSelect) {
+    public Plane(int planeTag, boolean isFinish, boolean isSelect, boolean isPre) {
         this.planeTag = planeTag;
         this.isFinish = isFinish;
         this.isSelect = isSelect;
+        this.isPre = isPre;
     }
 
     public int getPlaneTag() {
@@ -38,5 +40,13 @@ public class Plane implements Serializable{
 
     public void setSelect(boolean select) {
         isSelect = select;
+    }
+
+    public void setPre(boolean pre) {
+        isPre = pre;
+    }
+
+    public boolean isPre() {
+        return isPre;
     }
 }

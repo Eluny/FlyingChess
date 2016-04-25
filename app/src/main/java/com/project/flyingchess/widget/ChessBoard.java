@@ -4,13 +4,21 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.PathEffect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.orhanobut.logger.Logger;
 import com.project.flyingchess.R;
+import com.project.flyingchess.model.Plane;
+import com.project.flyingchess.other.Constants;
+import com.project.flyingchess.ruler.DefaultRuler;
 import com.project.flyingchess.utils.Color;
 import com.project.flyingchess.widget.shape.Circle;
 import com.project.flyingchess.widget.shape.MyShape;
@@ -37,10 +45,13 @@ public class ChessBoard extends View {
 
     //public boolean isPaint;
     private Paint[] paints = new Paint[5];
+    private Paint[] dashs = new Paint[4];
+    private Path[] dashPaths = new Path[4];
     private Bitmap[] plane_normal = new Bitmap[4];
     //private Bitmap[] plane_select = new Bitmap[4];
 
-    private Map<Integer, Integer> planeNum = new HashMap<Integer, Integer>();//棋子编号->格子编号
+    public static Plane[] planes = new Plane[16];
+    public static Map<Integer, Integer> planeNum = new HashMap<Integer, Integer>();//棋子编号->格子编号
     public static Map<Integer, MyShape> planePosition = new HashMap<Integer, MyShape>();//格子编号->图形对象（即对应的矩形或三角形）
 
     private Rectangle[] rectangles;
@@ -49,6 +60,19 @@ public class ChessBoard extends View {
     private Circle[] circles;
 
     private OnSelectPlaneListener onSelectPlaneListener;
+
+    //也是标志位置
+    public static int TAG_BLUE_BASE_1 = 77; public static int TAG_BLUE_BASE_2 = 78;
+    public static int TAG_BLUE_BASE_3 = 79; public static int TAG_BLUE_BASE_4 = 80;
+
+    public static int TAG_YELLOW_BASE_1 = 81; public static int TAG_YELLOW_BASE_2 = 82;
+    public static int TAG_YELLOW_BASE_3 = 83; public static int TAG_YELLOW_BASE_4 = 84;
+
+    public static int TAG_RED_BASE_1 = 85; public static int TAG_RED_BASE_2 = 86;
+    public static int TAG_RED_BASE_3 = 87; public static int TAG_RED_BASE_4 = 88;
+
+    public static int TAG_GREEN_BASE_1 = 89; public static int TAG_GREEN_BASE_2 = 90;
+    public static int TAG_GREEN_BASE_3 = 91; public static int TAG_GREEN_BASE_4 = 92;
 
     //标志坐标~
     public static int TAG_BLUE_START = 0;public static int TAG_BLUE_JUMP = 2;
@@ -109,6 +133,21 @@ public class ChessBoard extends View {
     }
 
     private void initPlaneInfo() {
+        //初始化16个棋子
+        for (int i = 0; i < 4; i++) {
+            planes[i] = new Plane(i + 1, false, false, false);
+        }
+        for (int i = 0; i < 4; i++) {
+            planes[i+4] = new Plane(i + 5, false, false, false);
+        }
+        for (int i = 0; i < 4; i++) {
+            planes[i+8] = new Plane(i + 9, false, false, false);
+        }
+        for (int i = 0; i < 4; i++) {
+            planes[i+12] = new Plane(i + 13, false, false, false);
+        }
+
+        //初始化哈希表
         planeNum.clear();
         for (int i = 0; i < 4; i++) {
             planeNum.put(i + 1, i + 77);
@@ -156,12 +195,12 @@ public class ChessBoard extends View {
             triangle[i] = new Triangle();
         }
 
-        square = new Rectangle[36];
+        square = new Rectangle[40];
         for (int i = 0; i < square.length; i++) {
             square[i] = new Rectangle();
         }
 
-        circles = new Circle[93];
+        circles = new Circle[97];
         for (int i = 0; i < circles.length; i++) {
             circles[i] = new Circle();
         }
@@ -182,17 +221,48 @@ public class ChessBoard extends View {
 
         paints[4].setStyle(Paint.Style.FILL);
         paints[4].setColor(0xb9fce701);
+
+        //虚线
+        for (int i = 0; i < dashs.length; i++) {
+            dashs[i] = new Paint();
+            dashs[i].setStyle(Paint.Style.STROKE);
+            dashs[i].setStrokeWidth(4);
+            PathEffect effects = new DashPathEffect(new float[]{1,2,4,8},1);
+            dashs[i].setPathEffect(effects);
+
+            dashPaths[i] = new Path();
+        }
     }
 
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         //if (!isPaint) {
-            drawRect(canvas);
-            drawTri(canvas);
-            drawCircle(canvas);
-            //isPaint = true;
+        drawRect(canvas);
+        drawTri(canvas);
+        drawCircle(canvas);
+        drawDash(canvas);
+        //isPaint = true;
         //}
         drawChess(canvas);
+    }
+
+    private void drawDash(Canvas canvas) {
+        dashs[0].setColor(Color.GREEN_);
+        dashPaths[0].moveTo(circles[5].getX(), circles[5].getY());
+        dashPaths[0].lineTo(circles[17].getX(), circles[17].getY());
+        canvas.drawPath(dashPaths[0], dashs[0]);
+        dashs[1].setColor(Color.BLUE_);
+        dashPaths[1].moveTo(circles[18].getX(), circles[18].getY());
+        dashPaths[1].lineTo(circles[30].getX(), circles[30].getY());
+        canvas.drawPath(dashPaths[1], dashs[1]);
+        dashs[2].setColor(Color.YELLOW_);
+        dashPaths[2].moveTo(circles[31].getX(), circles[31].getY());
+        dashPaths[2].lineTo(circles[43].getX(), circles[43].getY());
+        canvas.drawPath(dashPaths[2], dashs[2]);
+        dashs[3].setColor(Color.RED_);
+        dashPaths[3].moveTo(circles[44].getX(), circles[44].getY());
+        dashPaths[3].lineTo(circles[4].getX(), circles[4].getY());
+        canvas.drawPath(dashPaths[3], dashs[3]);
     }
 
     private void drawChess(Canvas canvas) {
@@ -384,6 +454,12 @@ public class ChessBoard extends View {
         square[33].setCoord(getMeasuredWidth() - 2 * mGridWidth, getMeasuredHeight() - 4 * mGridHeight, getMeasuredWidth(), getMeasuredHeight() - 2 * mGridHeight, 90, paints[3]);
         square[34].setCoord(getMeasuredWidth() - 4 * mGridWidth, getMeasuredHeight() - 2 * mGridHeight, getMeasuredWidth() - 2 * mGridWidth, getMeasuredHeight(), 91, paints[3]);
         square[35].setCoord(getMeasuredWidth() - 2 * mGridWidth, getMeasuredHeight() - 2 * mGridHeight, getMeasuredWidth(), getMeasuredHeight(), 92, paints[3]);
+
+        //四个起点
+        square[36].setCoord(4 * mGridWidth + BOARD_MARGIN, getMeasuredHeight() - mGridHeight, 5 * mGridWidth + BOARD_MARGIN, getMeasuredHeight(), 93, paints[0]);
+        square[37].setCoord(0, 4 * mGridHeight + BOARD_MARGIN, mGridWidth, 5 * mGridHeight + BOARD_MARGIN, 94, paints[1]);
+        square[38].setCoord(12 * mGridWidth + BOARD_MARGIN, 0, 13 * mGridWidth + BOARD_MARGIN, mGridHeight, 95, paints[2]);
+        square[39].setCoord(getMeasuredWidth() - mGridWidth, 12 * mGridHeight + BOARD_MARGIN, getMeasuredWidth(), 13 * mGridHeight + BOARD_MARGIN, 96, paints[3]);
     }
 
     /*
@@ -409,6 +485,18 @@ public class ChessBoard extends View {
                 if(theSelectedColor == Color.NONE) return false;
                 for (int i = theSelectedColor * 4 + 1; i <= theSelectedColor * 4 + 4; i++) {
                     int tmp = planeNum.get(i);
+                    //暂时添加
+                    if ((DefaultRuler.random != Constants.CAN_FLY) && (tmp == TAG_BLUE_BASE_1 || tmp == TAG_BLUE_BASE_2 || tmp == TAG_BLUE_BASE_3 || tmp == TAG_BLUE_BASE_4
+                            || tmp == TAG_YELLOW_BASE_1 || tmp == TAG_YELLOW_BASE_2 || tmp == TAG_BLUE_BASE_3 || tmp == TAG_YELLOW_BASE_4
+                            || tmp == TAG_RED_BASE_1 || tmp == TAG_RED_BASE_2 || tmp == TAG_RED_BASE_3 || tmp == TAG_RED_BASE_4
+                            || tmp == TAG_GREEN_BASE_1 || tmp == TAG_GREEN_BASE_2 || tmp == TAG_GREEN_BASE_3 || tmp == TAG_GREEN_BASE_4)) {
+                        Logger.d("TRUE");
+                        //break;
+                        continue;
+                    }else{
+                        Logger.d("FALSE");
+                    }
+                    //
                     MyShape shape = planePosition.get(tmp);
                     if(shape.isPointInRegion(x,y)&& tmp != TAG_BLUE_END && tmp != TAG_RED_END && tmp != TAG_YELLOW_END && tmp != TAG_RED_END){
                         //theSelectedPlaneTag = i;
