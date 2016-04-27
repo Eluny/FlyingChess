@@ -65,24 +65,39 @@ public class ChessBoard extends View {
     public static int TAG_BLUE_BASE_1 = 77; public static int TAG_BLUE_BASE_2 = 78;
     public static int TAG_BLUE_BASE_3 = 79; public static int TAG_BLUE_BASE_4 = 80;
     public static int TAG_BLUE_PRE = 93;     //蓝色方起飞点, 飞机重叠的问题？
+    public static int TAG_BLUE_DOUBLE_JUMP_START1 = 14;
+    public static int TAG_BLUE_DOUBLE_JUMP_START2 = 18;
+    public static int TAG_BLUE_DOUBLE_JUMP_END1 = 30;
+    public static int TAG_BLUE_DOUBLE_JUMP_END2 = 34;
 
     public static int TAG_YELLOW_BASE_1 = 81; public static int TAG_YELLOW_BASE_2 = 82;
     public static int TAG_YELLOW_BASE_3 = 83; public static int TAG_YELLOW_BASE_4 = 84;
+    public static int TAG_YELLOW_PRE = 94;
+    public static int TAG_YELLOW_DOUBLE_JUMP_START1 = 27;
+    public static int TAG_YELLOW_DOUBLE_JUMP_START2 = 31;
+    public static int TAG_YELLOW_DOUBLE_JUMP_END1 = 43;
+    public static int TAG_YELLOW_DOUBLE_JUMP_END2 = 47;
 
     public static int TAG_RED_BASE_1 = 85; public static int TAG_RED_BASE_2 = 86;
     public static int TAG_RED_BASE_3 = 87; public static int TAG_RED_BASE_4 = 88;
+    public static int TAG_RED_PRE = 95;
+    public static int TAG_RED_DOUBLE_JUMP_START1 = 40;
+    public static int TAG_RED_DOUBLE_JUMP_START2 = 44;
+    public static int TAG_RED_DOUBLE_JUMP_END1 = 4;
+    public static int TAG_RED_DOUBLE_JUMP_END2 = 8;
 
     public static int TAG_GREEN_BASE_1 = 89; public static int TAG_GREEN_BASE_2 = 90;
     public static int TAG_GREEN_BASE_3 = 91; public static int TAG_GREEN_BASE_4 = 92;
+    public static int TAG_GREEN_PRE = 96;
+    public static int TAG_GREEN_DOUBLE_JUMP_START1 = 1;
+    public static int TAG_GREEN_DOUBLE_JUMP_START2 = 5;
+    public static int TAG_GREEN_DOUBLE_JUMP_END1 = 17;
+    public static int TAG_GREEN_DOUBLE_JUMP_END2 = 21;
 
     //标志坐标~
     public static int TAG_BLUE_START = 0;public static int TAG_BLUE_JUMP = 2;
     public static int TAG_BLUE_CORNER = 50;public static int TAG_BLUE_CORNER_START = 70;
     public static int TAG_BLUE_END = 76;
-    public static int TAG_BLUE_DOUBLE_JUMP_START1 = 14;
-    public static int TAG_BLUE_DOUBLE_JUMP_START2 = 18;
-    public static int TAG_BLUE_DOUBLE_JUMP_END1 = 30;
-    public static int TAG_BLUE_DOUBLE_JUMP_END2 = 34;
 
     public static int TAG_YELLOW_START = 13;public static int TAG_YELLOW_JUMP = 15;
     public static int TAG_YELLOW_CORNER = 11;public static int TAG_YELLOW_CORNER_START = 52;
@@ -157,9 +172,14 @@ public class ChessBoard extends View {
         for (int i = 0; i < 4; i++) {
             planeNum.put(i + 1, i + 77);
         }
-        for (int i = 0; i < 4; i++) {
-            planeNum.put(i + 5, i + 81);
-        }
+//        for (int i = 0; i < 4; i++) {
+//            planeNum.put(i + 5, i + 81);
+//        }
+        planeNum.put(5, 51);
+        planeNum.put(6, 82);
+        planeNum.put(7, 83);
+        planeNum.put(8, 84);
+
         for (int i = 0; i < 4; i++) {
             planeNum.put(i + 9, i + 85);
         }
