@@ -35,7 +35,7 @@ public class Salut implements WifiP2pManager.ConnectionInfoListener{
     protected static final String TAG = "Salut";
     private static final int SALUT_SERVER_PORT = 37500;
     private static final int MAX_SERVER_CONNECTIONS = 25;
-    private static final int BUFFER_SIZE = 65536;;
+    private static final int BUFFER_SIZE = 65536;
     protected static final String STRING_ENCODING = "UTF-8";
     protected static final String UNREGISTER_CODE= "UNREGISTER_SALUT_DEVICE";
     protected String TTP = "._tcp";
@@ -186,11 +186,10 @@ public class Salut implements WifiP2pManager.ConnectionInfoListener{
          * The group owner accepts connections using a server socket and then spawns a
          * client socket for every client. This is handled by the registration jobs.
          * This will automatically handle first time connections.*/
-
+        //这就有意思了~有人想连接你啊~亲...介个时候你要怎么做咧~？我是这么理解的。这个方法就是这么一个回调。
         manager.requestGroupInfo(channel, new WifiP2pManager.GroupInfoListener() {
             @Override
             public void onGroupInfoAvailable(WifiP2pGroup group) {
-
                 if (isRunningAsHost && !registrationIsRunning) {
                     if (info.groupFormed && !group.getClientList().isEmpty()) {
                         startHostRegistrationServer();
@@ -300,7 +299,6 @@ public class Salut implements WifiP2pManager.ConnectionInfoListener{
         AsyncJob.doInBackground(new AsyncJob.OnBackgroundJob() {
             @Override
             public void doOnBackground() {
-
                 try {
                     //Create a server socket and wait for client connections. This
                     //call blocks until a connection is accepted from a client.

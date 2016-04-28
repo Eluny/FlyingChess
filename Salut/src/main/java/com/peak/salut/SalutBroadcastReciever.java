@@ -11,7 +11,7 @@ import android.util.Log;
 
 
 public class SalutBroadcastReciever extends BroadcastReceiver {
-
+    //封装了对Action的操作~by:hunnny~非常刚猛
     private WifiP2pManager manager;
     private WifiP2pManager.Channel channel;
     private Salut salutInstance;

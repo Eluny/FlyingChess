@@ -1,9 +1,11 @@
 package com.project.flyingchess.activity;
 
 import android.content.Context;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,15 +32,18 @@ import com.project.flyingchess.ruler.IRuler;
 import com.project.flyingchess.ruler.ServerRuler;
 import com.project.flyingchess.utils.Color;
 import com.project.flyingchess.widget.ChessBoard;
+import com.project.flyingchess.widget.ShakeLayout;
+import com.project.flyingchess.widget.ShakeListener;
 import com.project.flyingchess.widget.UpMarqueeTextView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-public class GameActivity extends BaseActivity implements View.OnClickListener{
+public class GameActivity extends BaseActivity implements View.OnClickListener,ShakeListener.OnShakeListener,ShakeLayout.AnimListener{
     private static final String TAG = "GameActivity";
     private Context mContext;
 
@@ -54,13 +59,20 @@ public class GameActivity extends BaseActivity implements View.OnClickListener{
     private ChessBoard v_chessBoard;
     private TextView tv_time;
     private UpMarqueeTextView tv_title;
-    private ImageView iv_dice;
 
     private WinnerDialog winnerDialog;
     private StartGameDialog startGameDialog;
     private WaitingPlayerDialog waitingPlayerDialog;
     private PeersDialog peersDialog;
     private WaitingGameStartDialog waitingGameStartDialog;
+
+    //private ImageView iv_dice;
+    //骰子的部分~
+    private ShakeLayout sl_dice;
+    private SoundPool soundPool;
+    private ShakeListener shakeListener;
+    private Handler mHandler = new Handler();
+    private HashMap<Integer, Integer> aduioMap = new HashMap<Integer, Integer>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,6 +125,25 @@ public class GameActivity extends BaseActivity implements View.OnClickListener{
         }
 
         initWinnerDialog();
+        initDice();
+    }
+
+    private void initDice() {
+        shakeListener = new ShakeListener(this);
+        shakeListener.setOnShakeListener(this);
+        sl_dice.setAnimListener(this);
+
+        initAudio();
+    }
+
+    private void initAudio() {
+        soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
+        aduioMap.put(1, soundPool.load(this, R.raw.rotate, 1));
+        soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
+            @Override
+            public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+            }
+        });
     }
 
     private void initWaitingStartGameDialog() {
@@ -227,21 +258,46 @@ public class GameActivity extends BaseActivity implements View.OnClickListener{
         v_chessBoard = (ChessBoard) findViewById(R.id.v_chessboard);
         tv_time = (TextView) findViewById(R.id.tv_time);
         tv_title = (UpMarqueeTextView) findViewById(R.id.tv_title);
-        iv_dice = (ImageView) findViewById(R.id.iv_dice);
+        sl_dice = (ShakeLayout) findViewById(R.id.sl_dice);
+        //iv_dice = (ImageView) findViewById(R.id.iv_dice);
 
-        iv_dice.setOnClickListener(this);
+        //iv_dice.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.iv_dice:
+            /*case R.id.iv_dice:
                 if(ruler != null)
                     ruler.dice();
-                break;
+                break;*/
 
             default:
                 break;
+        }
+    }
+
+    @Override
+    public void onShake() {
+        shakeListener.stop();
+        play();
+        ruler.dice();
+    }
+
+    @Override
+    public void onAnimFinish() {
+
+    }
+
+    public void play() {
+        if (soundPool != null) {
+            soundPool.play(aduioMap.get(1), 1.0f, 1.0f, 0, 0, 1);
+        }
+    }
+
+    public void stop() {
+        if (soundPool != null) {
+            soundPool.release();
         }
     }
 
@@ -252,27 +308,22 @@ public class GameActivity extends BaseActivity implements View.OnClickListener{
 
     @Subscribe
     public void onEventMainThread(UpdateDiceEvent msg) {
+        final int random = msg.getNumber();
         switch (msg.getNumber()){
             case 1:
-                iv_dice.setImageResource(R.drawable.d1);
-                break;
             case 2:
-                iv_dice.setImageResource(R.drawable.d2);
-                break;
             case 3:
-                iv_dice.setImageResource(R.drawable.d3);
-                break;
             case 4:
-                iv_dice.setImageResource(R.drawable.d4);
-                break;
             case 5:
-                iv_dice.setImageResource(R.drawable.d5);
-                break;
             case 6:
-                iv_dice.setImageResource(R.drawable.d6);
-                break;
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        sl_dice.anim(random);
+                        shakeListener.start();
+                    }
+                }, 600);
             default:
-                iv_dice.setImageResource(R.drawable.icon_dice);
                 break;
         }
     }
@@ -360,12 +411,20 @@ public class GameActivity extends BaseActivity implements View.OnClickListener{
     protected void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
+
         try {
             if(ruler != null) ruler.uninit();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        startGameDialog.dismiss();
+
+        if(startGameDialog != null)
+            startGameDialog.dismiss();
+
+        if (soundPool != null) {
+            soundPool.release();
+            soundPool = null;
+        }
     }
 
     public String getTag() {

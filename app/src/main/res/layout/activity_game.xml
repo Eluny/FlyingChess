@@ -61,12 +61,19 @@
         android:textColor="#000000"
         android:visibility="gone"/>
 
-    <ImageView
+    <!--<ImageView
         android:id="@+id/iv_dice"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_below="@id/v_chessboard"
         android:layout_centerHorizontal="true"
-        android:src="@drawable/icon_dice"/>
+        android:src="@drawable/icon_dice"/>-->
+
+    <com.project.flyingchess.widget.ShakeLayout
+        android:id="@+id/sl_dice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/v_chessboard"
+        android:layout_centerHorizontal="true"/>
 
 </RelativeLayout>
