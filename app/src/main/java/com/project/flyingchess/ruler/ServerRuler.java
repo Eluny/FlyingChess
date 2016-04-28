@@ -202,6 +202,12 @@ public class ServerRuler implements IRuler,SalutDataCallback {
         int currentIndex = mList.indexOf(currentPlayer) + 1;
         if(mWinnerList.size() != 0)
             mList.remove(mWinnerList.get(mWinnerList.size()-1));
+
+        if(mList.size() <= 1) {
+            Logger.d(mWinnerList.toString());
+            EventBus.getDefault().post(mWinnerList);
+            return;
+        }
         Logger.d(currentIndex + ": current");
         currentPlayer = (currentIndex != mList.size() ? mList.get(currentIndex) : mList.get(0));
     }
