@@ -63,9 +63,13 @@ public class ShakeLayout extends FrameLayout {
         addView(view, layoutParams);
     }
 
-    private void randomImg(ImageView imageView,int random) {
-        imageView.setImageResource(mImgs[random-1]);
+    public void randomImg(int random) {
+        shakeView.shakeImg.setImageResource(mImgs[random-1]);
     }
+
+    /*private void randomImg(ImageView imageView,int random) {
+        imageView.setImageResource(mImgs[random-1]);
+    }*/
 
     private void randomImgAnim(final ImageView imageView) {
         new Thread(new Runnable() {
@@ -89,7 +93,7 @@ public class ShakeLayout extends FrameLayout {
         this.model = model;
     }
 
-    public void anim(final int random) {
+    public void anim() {
         AlphaAnimation alphaAnimation = new AlphaAnimation(1.0f, 1.0f);
         alphaAnimation.setDuration(1000);
         view.startAnimation(alphaAnimation);
@@ -108,7 +112,7 @@ public class ShakeLayout extends FrameLayout {
                 view.post(new Runnable() {
                     @Override
                     public void run() {
-                        showRadom(random);
+                        showRadom();
                     }
                 });
             }
@@ -120,8 +124,7 @@ public class ShakeLayout extends FrameLayout {
         });
     }
 
-    private void showRadom(int random) {
-        randomImg(shakeView.shakeImg,random);
+    private void showRadom() {
         mAnimListener.onAnimFinish();
     }
 

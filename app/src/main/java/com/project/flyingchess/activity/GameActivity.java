@@ -270,8 +270,7 @@ public class GameActivity extends BaseActivity implements View.OnClickListener,S
         switch (v.getId()) {
             case R.id.sl_dice:
                 sl_dice.setClickable(false);
-                if(ruler != null)
-                    ruler.dice();
+                sl_dice.anim();
                 break;
 
             default:
@@ -282,13 +281,21 @@ public class GameActivity extends BaseActivity implements View.OnClickListener,S
     @Override
     public void onShake() {
         shakeListener.stop();
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                sl_dice.anim();
+                shakeListener.start();
+            }
+        }, 600);
         play();
-        ruler.dice();
     }
 
     @Override
     public void onAnimFinish() {
         sl_dice.setClickable(true);
+        if(ruler != null)
+            ruler.dice();
     }
 
     public void play() {
@@ -318,13 +325,7 @@ public class GameActivity extends BaseActivity implements View.OnClickListener,S
             case 4:
             case 5:
             case 6:
-                mHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        sl_dice.anim(random);
-                        shakeListener.start();
-                    }
-                }, 600);
+                sl_dice.randomImg(random);
             default:
                 break;
         }

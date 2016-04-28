@@ -1,7 +1,6 @@
 package com.project.flyingchess.ruler;
 
 import android.content.Context;
-import android.text.TextDirectionHeuristic;
 
 import com.orhanobut.logger.Logger;
 import com.project.flyingchess.eventbus.UpdateDiceEvent;
@@ -45,6 +44,7 @@ public class DefaultRuler implements IRuler{
 
 
     public void init() {
+        mList.addAll(mWinnerList);
         mWinnerList.clear();
         stepList.clear();
         mFinishMap.clear();
@@ -84,7 +84,11 @@ public class DefaultRuler implements IRuler{
         int currentIndex = mList.indexOf(currentPlayer) + 1;
         if(mWinnerList.size() != 0)
             mList.remove(mWinnerList.get(mWinnerList.size()-1));
-        Logger.d(currentIndex + ": current");
+        if (mList.size() <= 1) {
+            Logger.d(mWinnerList.toString());
+            EventBus.getDefault().post(mWinnerList);
+            return;
+        }
         currentPlayer = (currentIndex != mList.size() ? mList.get(currentIndex) : mList.get(0));
     }
 
@@ -175,43 +179,6 @@ public class DefaultRuler implements IRuler{
                 } else {
                     handleBlue(planeTag, theSelectedPlaneTag);
                 }
-                //
-//                if(ChessBoard.TAG_LARGE <= theSelectedPlaneTag || ChessBoard.TAG_SMALL >= theSelectedPlaneTag)
-//                    if((ChessBoard.TAG_BLUE_START + random - ChessBoard.TAG_BLUE_JUMP) % 4 == 0)
-//                        step = new Step(planeTag,ChessBoard.TAG_BLUE_START + random + 4);
-//                    else
-//                        step = new Step(planeTag,ChessBoard.TAG_BLUE_START + random);
-//                else if(0 < theSelectedPlaneTag && theSelectedPlaneTag <= ChessBoard.TAG_BLUE_CORNER){
-//                    if(theSelectedPlaneTag + random < ChessBoard.TAG_BLUE_CORNER)
-//                        if((theSelectedPlaneTag + random - ChessBoard.TAG_BLUE_JUMP) % 4 == 0){
-//                            step = new Step(planeTag,theSelectedPlaneTag + random + 4);
-//                        } else {
-//                            step = new Step(planeTag,theSelectedPlaneTag + random);
-//                        }
-//                    else if(theSelectedPlaneTag + random == ChessBoard.TAG_BLUE_CORNER){
-//                        step = new Step(planeTag,ChessBoard.TAG_BLUE_CORNER);
-//                    }else{
-//                        step = new Step(planeTag,ChessBoard.TAG_BLUE_CORNER_START + theSelectedPlaneTag + random - ChessBoard.TAG_BLUE_CORNER);
-//                    }
-//                }else{
-//                    if(theSelectedPlaneTag + random <= ChessBoard.TAG_BLUE_END){
-//                        step = new Step(planeTag,theSelectedPlaneTag + random);
-//                        if(theSelectedPlaneTag + random == ChessBoard.TAG_BLUE_END){
-//                            mFinishMap.put(currentPlayer,mFinishMap.get(currentPlayer)+1);
-//                            if(mFinishMap.get(currentPlayer) == FINISH_NUM){
-//                                currentPlayer.setFinish(true);
-//                                mWinnerList.add(currentPlayer);
-//                                if(mList.size() <= 1) {
-//                                    Logger.d(mWinnerList.toString());
-//                                    EventBus.getDefault().post(mWinnerList);
-//                                    return;
-//                                }
-//                            }
-//                        }
-//                    }
-//                    else
-//                        step = new Step(planeTag,ChessBoard.TAG_BLUE_END * 2 - (theSelectedPlaneTag + random));
-//                }
                 stepList.add(step);
                 currentPlayer.putChess(step);
                 break;
@@ -226,48 +193,6 @@ public class DefaultRuler implements IRuler{
                 } else {
                     handleYellow(planeTag, theSelectedPlaneTag);
                 }
-                //
-//                if(ChessBoard.TAG_LARGE <= theSelectedPlaneTag || ChessBoard.TAG_SMALL >= theSelectedPlaneTag)
-//                    if((ChessBoard.TAG_YELLOW_START + random - ChessBoard.TAG_YELLOW_JUMP) % 4 == 0)
-//                        step = new Step(planeTag,ChessBoard.TAG_YELLOW_START + random + 4);
-//                    else
-//                        step = new Step(planeTag,ChessBoard.TAG_YELLOW_START + random);
-//                else if(0 < theSelectedPlaneTag && theSelectedPlaneTag <= ChessBoard.TAG_YELLOW_CORNER) {
-//                    if(theSelectedPlaneTag + random < ChessBoard.TAG_YELLOW_CORNER)
-//                        if((ChessBoard.TAG_YELLOW_JUMP - theSelectedPlaneTag - random) % 4 == 0)
-//                            step = new Step(planeTag,theSelectedPlaneTag + random + 4);
-//                        else
-//                            step = new Step(planeTag,theSelectedPlaneTag + random);
-//                    else if(theSelectedPlaneTag + random == ChessBoard.TAG_YELLOW_CORNER){
-//                        step = new Step(planeTag,ChessBoard.TAG_YELLOW_CORNER);
-//                    }else{
-//                        step = new Step(planeTag,ChessBoard.TAG_YELLOW_CORNER_START + theSelectedPlaneTag + random - ChessBoard.TAG_YELLOW_CORNER);
-//                    }
-//                }else if(ChessBoard.TAG_YELLOW_CORNER_START < theSelectedPlaneTag && theSelectedPlaneTag <= ChessBoard.TAG_YELLOW_END){
-//                    if(theSelectedPlaneTag + random <= ChessBoard.TAG_YELLOW_END){
-//                        step = new Step(planeTag,theSelectedPlaneTag + random);
-//                        if(theSelectedPlaneTag + random == ChessBoard.TAG_YELLOW_END){
-//                            mFinishMap.put(currentPlayer,mFinishMap.get(currentPlayer)+1);
-//                            if(mFinishMap.get(currentPlayer) == FINISH_NUM){
-//                                currentPlayer.setFinish(true);
-//                                mWinnerList.add(currentPlayer);
-//                                if(mList.size() <= 1) {
-//                                    Logger.d(mWinnerList.toString());
-//                                    EventBus.getDefault().post(mWinnerList);
-//                                    return;
-//                                }
-//                                //EventBus.getDefault().post(new WinnerEvent(currentPlayer.getName()));
-//                            }
-//                        }
-//                    }
-//                    else
-//                        step = new Step(planeTag,ChessBoard.TAG_YELLOW_END * 2 - (theSelectedPlaneTag + random));
-//                }else /* if(theSelectedPlaneTag <= ChessBoard.TAG_RECTANGLE_LARGE)*/{
-//                    if((theSelectedPlaneTag + random - ChessBoard.TAG_YELLOW_JUMP) % 4 == 0)
-//                        step = new Step(planeTag,(theSelectedPlaneTag + random + 4) % ChessBoard.TAG_RECTANGLE_LARGE);
-//                    else
-//                        step = new Step(planeTag,(theSelectedPlaneTag + random) % ChessBoard.TAG_RECTANGLE_LARGE);
-//                }
                 stepList.add(step);
                 currentPlayer.putChess(step);
                 break;
@@ -282,47 +207,6 @@ public class DefaultRuler implements IRuler{
                 } else {
                     handleRed(planeTag, theSelectedPlaneTag);
                 }
-                //
-//                if(ChessBoard.TAG_LARGE <= theSelectedPlaneTag || ChessBoard.TAG_SMALL >= theSelectedPlaneTag)
-//                    if((ChessBoard.TAG_RED_START + random - ChessBoard.TAG_RED_JUMP) % 4 == 0)
-//                        step = new Step(planeTag,ChessBoard.TAG_RED_START + random + 4);
-//                    else
-//                        step = new Step(planeTag,ChessBoard.TAG_RED_START + random);
-//                else if(0 < theSelectedPlaneTag && theSelectedPlaneTag <= ChessBoard.TAG_RED_CORNER) {
-//                    if(theSelectedPlaneTag + random < ChessBoard.TAG_RED_CORNER)
-//                        if((ChessBoard.TAG_RED_JUMP - theSelectedPlaneTag - random) % 4 == 0)
-//                            step = new Step(planeTag,theSelectedPlaneTag + random + 4);
-//                        else
-//                            step = new Step(planeTag,theSelectedPlaneTag + random);
-//                    else if(theSelectedPlaneTag + random == ChessBoard.TAG_RED_CORNER){
-//                        step = new Step(planeTag,ChessBoard.TAG_RED_CORNER);
-//                    }else{
-//                        step = new Step(planeTag,ChessBoard.TAG_RED_CORNER_START + theSelectedPlaneTag + random - ChessBoard.TAG_RED_CORNER);
-//                    }
-//                }else if(ChessBoard.TAG_RED_CORNER_START < theSelectedPlaneTag && theSelectedPlaneTag <= ChessBoard.TAG_RED_END){
-//                    if(theSelectedPlaneTag + random <= ChessBoard.TAG_RED_END){
-//                        step = new Step(planeTag,theSelectedPlaneTag + random);
-//                        if(theSelectedPlaneTag + random == ChessBoard.TAG_RED_END){
-//                            mFinishMap.put(currentPlayer,mFinishMap.get(currentPlayer)+1);
-//                            if(mFinishMap.get(currentPlayer) == FINISH_NUM){
-//                                currentPlayer.setFinish(true);
-//                                mWinnerList.add(currentPlayer);
-//                                if(mList.size() <= 1) {
-//                                    Logger.d(mWinnerList.toString());
-//                                    EventBus.getDefault().post(mWinnerList);
-//                                    return;
-//                                }
-//                            }
-//                        }
-//                    }
-//                    else
-//                        step = new Step(planeTag,ChessBoard.TAG_RED_END * 2 - (theSelectedPlaneTag + random));
-//                }else /* if(theSelectedPlaneTag <= ChessBoard.TAG_RECTANGLE_LARGE)*/{
-//                    if((theSelectedPlaneTag + random - ChessBoard.TAG_RED_JUMP) % 4 == 0)
-//                        step = new Step(planeTag,(theSelectedPlaneTag + random + 4) % ChessBoard.TAG_RECTANGLE_LARGE);
-//                    else
-//                        step = new Step(planeTag,(theSelectedPlaneTag + random) % ChessBoard.TAG_RECTANGLE_LARGE);
-//                }
                 stepList.add(step);
                 currentPlayer.putChess(step);
                 break;
@@ -337,45 +221,6 @@ public class DefaultRuler implements IRuler{
                 } else {
                     handleGreen(planeTag, theSelectedPlaneTag);
                 }
-//                if(ChessBoard.TAG_LARGE <= theSelectedPlaneTag || ChessBoard.TAG_SMALL >= theSelectedPlaneTag)
-//                    if((ChessBoard.TAG_GREEN_START + random - ChessBoard.TAG_GREEN_JUMP) % 4 == 0)
-//                        step = new Step(planeTag,ChessBoard.TAG_GREEN_START + random + 4);
-//                    else
-//                        step = new Step(planeTag,ChessBoard.TAG_GREEN_START + random);
-//                else if(0 < theSelectedPlaneTag && theSelectedPlaneTag <= ChessBoard.TAG_GREEN_CORNER) {
-//                    if(theSelectedPlaneTag + random < ChessBoard.TAG_GREEN_CORNER)
-//                        if((ChessBoard.TAG_GREEN_JUMP - theSelectedPlaneTag - random) % 4 == 0)
-//                            step = new Step(planeTag,theSelectedPlaneTag + random + 4);
-//                        else
-//                            step = new Step(planeTag,theSelectedPlaneTag + random);
-//                    else if(theSelectedPlaneTag + random == ChessBoard.TAG_GREEN_CORNER){
-//                        step = new Step(planeTag,ChessBoard.TAG_GREEN_CORNER);
-//                    }else{
-//                        step = new Step(planeTag,ChessBoard.TAG_GREEN_CORNER_START + theSelectedPlaneTag + random - ChessBoard.TAG_GREEN_CORNER);
-//                    }
-//                }else if(ChessBoard.TAG_GREEN_CORNER_START < theSelectedPlaneTag && theSelectedPlaneTag <= ChessBoard.TAG_GREEN_END){
-//                    if(theSelectedPlaneTag + random <= ChessBoard.TAG_GREEN_END){
-//                        step = new Step(planeTag,theSelectedPlaneTag + random);
-//                        if(theSelectedPlaneTag + random == ChessBoard.TAG_GREEN_END){
-//                            mFinishMap.put(currentPlayer,mFinishMap.get(currentPlayer)+1);
-//                            if(mFinishMap.get(currentPlayer) == FINISH_NUM){
-//                                currentPlayer.setFinish(true);
-//                                mWinnerList.add(currentPlayer);
-//                                if(mList.size() <= 1) {
-//                                    Logger.d(mWinnerList.toString());
-//                                    EventBus.getDefault().post(mWinnerList);
-//                                }
-//                            }
-//                        }
-//                    }
-//                    else
-//                        step = new Step(planeTag,ChessBoard.TAG_GREEN_END * 2 - (theSelectedPlaneTag + random));
-//                }else /* if(theSelectedPlaneTag <= ChessBoard.TAG_RECTANGLE_LARGE)*/{
-//                    if((theSelectedPlaneTag + random - ChessBoard.TAG_GREEN_JUMP) % 4 == 0)
-//                        step = new Step(planeTag,(theSelectedPlaneTag + random + 4) % ChessBoard.TAG_RECTANGLE_LARGE);
-//                    else
-//                        step = new Step(planeTag,(theSelectedPlaneTag + random) % ChessBoard.TAG_RECTANGLE_LARGE);
-//                }
                 stepList.add(step);
                 currentPlayer.putChess(step);
                 break;
