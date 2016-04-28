@@ -132,6 +132,7 @@ public class GameActivity extends BaseActivity implements View.OnClickListener,S
         shakeListener = new ShakeListener(this);
         shakeListener.setOnShakeListener(this);
         sl_dice.setAnimListener(this);
+        sl_dice.setOnClickListener(this);
 
         initAudio();
     }
@@ -267,10 +268,11 @@ public class GameActivity extends BaseActivity implements View.OnClickListener,S
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            /*case R.id.iv_dice:
+            case R.id.sl_dice:
+                sl_dice.setClickable(false);
                 if(ruler != null)
                     ruler.dice();
-                break;*/
+                break;
 
             default:
                 break;
@@ -286,7 +288,7 @@ public class GameActivity extends BaseActivity implements View.OnClickListener,S
 
     @Override
     public void onAnimFinish() {
-
+        sl_dice.setClickable(true);
     }
 
     public void play() {

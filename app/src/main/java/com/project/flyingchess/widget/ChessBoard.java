@@ -10,7 +10,6 @@ import android.graphics.Path;
 import android.graphics.PathEffect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -302,7 +301,7 @@ public class ChessBoard extends View {
             }*/
             Circle circle = circles[tmp];
             RectF rectF = new RectF(circle.getX() - circle.getRadius(), circle.getY() - circle.getRadius(), circle.getX() + circle.getRadius(), circle.getY() + circle.getRadius());
-            if(theSelectedColor == (i-1) / 4 && tmp != TAG_BLUE_END && tmp != TAG_RED_END && tmp != TAG_YELLOW_END && tmp != TAG_RED_END)
+            if(theSelectedColor == (i-1) / 4 && tmp != TAG_BLUE_END && tmp != TAG_RED_END && tmp != TAG_YELLOW_END && tmp != TAG_GREEN_END)
                 canvas.drawCircle(circle.getX(),circle.getY(),circle.getRadius()+5,paints[4]);
             canvas.drawBitmap(plane_normal[(i-1)/4], null, rectF, null);
             //canvas.drawBitmap(plane_select[(i-1)/4], null, rectF, null);
