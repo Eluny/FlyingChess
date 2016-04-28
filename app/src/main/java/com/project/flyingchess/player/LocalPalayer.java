@@ -3,7 +3,6 @@ package com.project.flyingchess.player;
 import com.project.flyingchess.eventbus.UpdateDiceEvent;
 import com.project.flyingchess.eventbus.UpdateTitleEvent;
 import com.project.flyingchess.model.Step;
-import com.project.flyingchess.other.Constants;
 import com.project.flyingchess.ruler.ServerRuler;
 import com.project.flyingchess.widget.ChessBoard;
 

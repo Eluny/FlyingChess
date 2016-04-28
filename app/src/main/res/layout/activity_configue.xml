@@ -203,4 +203,18 @@
         android:textColor="#fff"
         android:background="@drawable/btn_bg"/>
 
+    <Button
+        android:id="@+id/btn_restart"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/btn_start"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+        android:text="@string/restart"
+        android:textSize="20sp"
+        android:textColor="#fff"
+        android:background="@drawable/btn_bg"/>
+
 </RelativeLayout>

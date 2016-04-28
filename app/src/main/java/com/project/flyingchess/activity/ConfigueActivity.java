@@ -1,5 +1,6 @@
 package com.project.flyingchess.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -9,9 +10,12 @@ import android.widget.Toast;
 
 import com.orhanobut.logger.Logger;
 import com.project.flyingchess.R;
+import com.project.flyingchess.utils.ACache;
 
 public class ConfigueActivity extends BaseActivity implements View.OnClickListener{
     private static final String TAG = "ConfigueActivity";
+    private Context mContext;
+
     private TextView tv_human_1;
     private TextView tv_human_2;
     private TextView tv_human_3;
@@ -41,11 +45,14 @@ public class ConfigueActivity extends BaseActivity implements View.OnClickListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_configue);
 
+        mContext = this;
+
         findview();
     }
 
     private void findview() {
         Button btn_start = (Button) findViewById(R.id.btn_start);
+        Button btn_restart = (Button) findViewById(R.id.btn_restart);
         tv_human_1 = (TextView) findViewById(R.id.tv_human_1);
         tv_human_2 = (TextView) findViewById(R.id.tv_human_2);
         tv_human_3 = (TextView) findViewById(R.id.tv_human_3);
@@ -60,6 +67,7 @@ public class ConfigueActivity extends BaseActivity implements View.OnClickListen
         tv_none_4 = (TextView) findViewById(R.id.tv_none_4);
 
         btn_start.setOnClickListener(this);
+        btn_restart.setOnClickListener(this);
         tv_human_1.setOnClickListener(this);
         tv_human_2.setOnClickListener(this);
         tv_human_3.setOnClickListener(this);
@@ -83,6 +91,8 @@ public class ConfigueActivity extends BaseActivity implements View.OnClickListen
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_start:
+                ACache.get(mContext).put("FlyingChess", " ");
+
                 Logger.d("Single dog~");
                 if(player_1 == NONE && player_2 == NONE
                         && player_3 == NONE && player_4 == NONE){
@@ -96,6 +106,30 @@ public class ConfigueActivity extends BaseActivity implements View.OnClickListen
                     .putExtra(PLAYER_3,player_3)
                     .putExtra(PLAYER_4,player_4)
                 );
+                break;
+            case R.id.btn_restart:
+                Logger.d("Single dog~");
+                if(player_1 == NONE && player_2 == NONE
+                        && player_3 == NONE && player_4 == NONE){
+                    Toast.makeText(ConfigueActivity.this,"~没有对象不给玩啊~",Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                startActivity(new Intent(ConfigueActivity.this,GameActivity.class)
+                        .putExtra(GameActivity.KEY_MODE , GameActivity.SINGLE)
+                        .putExtra(PLAYER_1,player_1)
+                        .putExtra(PLAYER_2,player_2)
+                        .putExtra(PLAYER_3,player_3)
+                        .putExtra(PLAYER_4,player_4)
+                );
+
+                /*try {
+                    ACache.get(mContext).put("FlyingChess", LoganSquare.serialize(steps));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Logger.d(ACache.get(mContext).getAsString("FlyingChess"));*/
+
+
                 break;
             case R.id.tv_human_1:
                 player_1 = HUMAN;

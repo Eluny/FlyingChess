@@ -10,6 +10,7 @@
     <string name="computer">电脑</string>
     <string name="none">无~</string>
     <string name="start">开始游戏~</string>
+    <string name="restart">继续游戏~</string>
 
     <!-- 游戏页面~：Game-->
     <string name="welcome">欢迎你啊~小伙伴~</string>

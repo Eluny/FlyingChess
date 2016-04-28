@@ -17,6 +17,7 @@ import com.project.flyingchess.dialog.StartGameDialog;
 import com.project.flyingchess.dialog.WaitingGameStartDialog;
 import com.project.flyingchess.dialog.WaitingPlayerDialog;
 import com.project.flyingchess.dialog.WinnerDialog;
+import com.project.flyingchess.eventbus.AIEvent;
 import com.project.flyingchess.eventbus.GameStartEvent;
 import com.project.flyingchess.eventbus.UpdateDiceEvent;
 import com.project.flyingchess.eventbus.UpdateGameInfoEvent;
@@ -108,7 +109,7 @@ public class GameActivity extends BaseActivity implements View.OnClickListener,S
                 if(player_4 != ConfigueActivity.NONE)
                     mList.add(judgePlayer(player_4,ConfigueActivity.PLAYER_4,Color.GREEN));
 
-                ruler = new DefaultRuler(mList);
+                ruler = new DefaultRuler(mContext,mList);
                 ruler.start();
 
                 break;
@@ -397,6 +398,16 @@ public class GameActivity extends BaseActivity implements View.OnClickListener,S
     @Subscribe
     public void onEventMainThread(GameStartEvent msg) {
         waitingGameStartDialog.dismiss();
+    }
+
+    @Subscribe
+    public void onEventMainThread(AIEvent msg) {
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                sl_dice.performClick();
+            }
+        }, 1500);
     }
 
     /*public boolean onKeyDown(int keyCode, KeyEvent event) {

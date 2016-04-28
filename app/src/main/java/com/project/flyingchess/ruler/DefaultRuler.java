@@ -2,17 +2,20 @@ package com.project.flyingchess.ruler;
 
 import android.content.Context;
 
+import com.bluelinelabs.logansquare.LoganSquare;
 import com.orhanobut.logger.Logger;
 import com.project.flyingchess.eventbus.UpdateDiceEvent;
 import com.project.flyingchess.eventbus.UpdateTitleEvent;
 import com.project.flyingchess.model.Step;
 import com.project.flyingchess.other.Constants;
 import com.project.flyingchess.player.Player;
+import com.project.flyingchess.utils.ACache;
 import com.project.flyingchess.utils.Color;
 import com.project.flyingchess.widget.ChessBoard;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,8 +38,10 @@ public class DefaultRuler implements IRuler{
     private HashMap<Player,Integer> mFinishMap = new HashMap<>();
 
     private boolean isDicing = false;
+    private boolean isStart = false;
 
-    public DefaultRuler(List<Player> mList) {
+    public DefaultRuler(Context mContext,List<Player> mList) {
+        this.mContext = mContext;
         this.mList = mList;
 
         init();
@@ -44,6 +49,18 @@ public class DefaultRuler implements IRuler{
 
 
     public void init() {
+        try{
+            String str = ACache.get(mContext).getAsString("FlyingChess");
+            if(!str.equals(" ")){
+                List<Step> stepList_ = LoganSquare.parseList(str,Step.class);
+                for(Step step:stepList_)
+                    mList.get(0).putChess(step);
+                //我还是服我自己的~
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
         mList.addAll(mWinnerList);
         mWinnerList.clear();
         stepList.clear();
@@ -57,7 +74,13 @@ public class DefaultRuler implements IRuler{
     }
 
     @Override
-    public void uninit() {
+    public void uninit(){
+        try {
+            ACache.get(mContext).put("FlyingChess", LoganSquare.serialize(stepList));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Logger.d(ACache.get(mContext).getAsString("FlyingChess"));
     }
 
     @Override
@@ -68,6 +91,7 @@ public class DefaultRuler implements IRuler{
         nextPalyer();
         currentPlayer.onYourTurn();
         isDicing = true;
+        isStart = true;
     }
 
     @Override
@@ -87,6 +111,7 @@ public class DefaultRuler implements IRuler{
         if (mList.size() <= 1) {
             Logger.d(mWinnerList.toString());
             EventBus.getDefault().post(mWinnerList);
+            isStart = false;
             return;
         }
         currentPlayer = (currentIndex != mList.size() ? mList.get(currentIndex) : mList.get(0));
@@ -96,17 +121,19 @@ public class DefaultRuler implements IRuler{
 
     @Override
     public void dice() {
-        if(isDicing){
-            random = randomGen.nextInt(6) + 1;
-            isDicing = false;
-            if (isAllCanNotFly(currentPlayer.getColor())) {
-                EventBus.getDefault().post(new UpdateDiceEvent(random));
-                EventBus.getDefault().post(new UpdateTitleEvent(currentPlayer.getName() + "摇到的点数为：" + random));
-                nextPalyer();
-                isDicing = true;
-                currentPlayer.onYourTurn();
-            } else {
-                currentPlayer.think(random);
+        if(isStart) {
+            if (isDicing) {
+                random = randomGen.nextInt(6) + 1;
+                isDicing = false;
+                if (isAllCanNotFly(currentPlayer.getColor())) {//所有的都不能飞喽~
+                    EventBus.getDefault().post(new UpdateDiceEvent(random));
+                    EventBus.getDefault().post(new UpdateTitleEvent(currentPlayer.getName() + "摇到的点数为：" + random));
+                    nextPalyer();
+                    isDicing = true;
+                    currentPlayer.onYourTurn();
+                } else {
+                    currentPlayer.think(random);
+                }
             }
         }
     }

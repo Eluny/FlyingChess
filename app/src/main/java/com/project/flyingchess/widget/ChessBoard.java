@@ -13,7 +13,6 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.orhanobut.logger.Logger;
 import com.project.flyingchess.R;
 import com.project.flyingchess.model.Plane;
 import com.project.flyingchess.other.Constants;
@@ -514,11 +513,8 @@ public class ChessBoard extends View {
                             || tmp == TAG_YELLOW_BASE_1 || tmp == TAG_YELLOW_BASE_2 || tmp == TAG_BLUE_BASE_3 || tmp == TAG_YELLOW_BASE_4
                             || tmp == TAG_RED_BASE_1 || tmp == TAG_RED_BASE_2 || tmp == TAG_RED_BASE_3 || tmp == TAG_RED_BASE_4
                             || tmp == TAG_GREEN_BASE_1 || tmp == TAG_GREEN_BASE_2 || tmp == TAG_GREEN_BASE_3 || tmp == TAG_GREEN_BASE_4)) {
-                        Logger.d("TRUE");
                         //break;
                         continue;
-                    }else{
-                        Logger.d("FALSE");
                     }
                     //
                     MyShape shape = planePosition.get(tmp);
