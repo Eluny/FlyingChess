@@ -20,9 +20,11 @@ import com.project.flyingchess.eventbus.UpdateTitleEvent;
 import com.project.flyingchess.eventbus.WinnerEvent;
 import com.project.flyingchess.model.Message;
 import com.project.flyingchess.model.Step;
+import com.project.flyingchess.other.Constants;
 import com.project.flyingchess.player.Player;
 import com.project.flyingchess.utils.Color;
 import com.project.flyingchess.utils.MessageWrapper;
+import com.project.flyingchess.widget.ChessBoard;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -139,9 +141,43 @@ public class ClientRuler implements IRuler,SalutDataCallback {
                 }
             });
 
-            currentPlayer.think(random);
+            if(isAllCanNotFly(currentPlayer.getColor()))
+                currentPlayer.think(random);
+            else{
+                EventBus.getDefault().post(new UpdateDiceEvent(random));
+                EventBus.getDefault().post(new UpdateTitleEvent(currentPlayer.getName() + "摇到的点数为：" + random));
+            }
+
             isYourTurn = false;
         }
+    }
+
+    public boolean isAllCanNotFly(int color) {
+        if (color == Color.BLUE) {
+            if (random != Constants.CAN_FLY && (ChessBoard.planeNum.get(1) == ChessBoard.TAG_BLUE_BASE_1) && (ChessBoard.planeNum.get(2) == ChessBoard.TAG_BLUE_BASE_2)
+                    && (ChessBoard.planeNum.get(3) == ChessBoard.TAG_BLUE_BASE_3) && (ChessBoard.planeNum.get(4) == ChessBoard.TAG_BLUE_BASE_4)) {
+                return true;
+            }
+        }
+        if (color == Color.YELLOW) {
+            if (random != Constants.CAN_FLY && (ChessBoard.planeNum.get(5) == ChessBoard.TAG_YELLOW_BASE_1) && (ChessBoard.planeNum.get(6) == ChessBoard.TAG_YELLOW_BASE_2)
+                    && (ChessBoard.planeNum.get(7) == ChessBoard.TAG_YELLOW_BASE_3) && (ChessBoard.planeNum.get(8) == ChessBoard.TAG_YELLOW_BASE_4)) {
+                return true;
+            }
+        }
+        if (color == Color.RED) {
+            if (random != Constants.CAN_FLY && (ChessBoard.planeNum.get(9) == ChessBoard.TAG_RED_BASE_1) && (ChessBoard.planeNum.get(10) == ChessBoard.TAG_RED_BASE_2)
+                    && (ChessBoard.planeNum.get(11) == ChessBoard.TAG_RED_BASE_3) && (ChessBoard.planeNum.get(12) == ChessBoard.TAG_RED_BASE_4)) {
+                return true;
+            }
+        }
+        if (color == Color.GREEN) {
+            if (random != Constants.CAN_FLY && (ChessBoard.planeNum.get(13) == ChessBoard.TAG_GREEN_BASE_1) && (ChessBoard.planeNum.get(14) == ChessBoard.TAG_GREEN_BASE_2)
+                    && (ChessBoard.planeNum.get(15) == ChessBoard.TAG_GREEN_BASE_3) && (ChessBoard.planeNum.get(16) == ChessBoard.TAG_GREEN_BASE_4)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

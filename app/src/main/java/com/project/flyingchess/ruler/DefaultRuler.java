@@ -140,40 +140,24 @@ public class DefaultRuler implements IRuler{
 
     public boolean isAllCanNotFly(int color) {
         if (color == Color.BLUE) {
-//            if (random != Constants.CAN_FLY && !ChessBoard.planes[0].isPre() && !ChessBoard.planes[1].isPre()
-//                    && !ChessBoard.planes[2].isPre() && !ChessBoard.planes[3].isPre()) {
-//                return true;
-//            }
             if (random != Constants.CAN_FLY && (ChessBoard.planeNum.get(1) == ChessBoard.TAG_BLUE_BASE_1) && (ChessBoard.planeNum.get(2) == ChessBoard.TAG_BLUE_BASE_2)
                     && (ChessBoard.planeNum.get(3) == ChessBoard.TAG_BLUE_BASE_3) && (ChessBoard.planeNum.get(4) == ChessBoard.TAG_BLUE_BASE_4)) {
                 return true;
             }
         }
         if (color == Color.YELLOW) {
-//            if (random != Constants.CAN_FLY && !ChessBoard.planes[4].isPre() && !ChessBoard.planes[5].isPre()
-//                    && !ChessBoard.planes[6].isPre() && !ChessBoard.planes[7].isPre()) {
-//                return true;
-//            }
             if (random != Constants.CAN_FLY && (ChessBoard.planeNum.get(5) == ChessBoard.TAG_YELLOW_BASE_1) && (ChessBoard.planeNum.get(6) == ChessBoard.TAG_YELLOW_BASE_2)
                     && (ChessBoard.planeNum.get(7) == ChessBoard.TAG_YELLOW_BASE_3) && (ChessBoard.planeNum.get(8) == ChessBoard.TAG_YELLOW_BASE_4)) {
                 return true;
             }
         }
         if (color == Color.RED) {
-//            if (random != Constants.CAN_FLY && !ChessBoard.planes[8].isPre() && !ChessBoard.planes[9].isPre()
-//                    && !ChessBoard.planes[10].isPre() && !ChessBoard.planes[11].isPre()) {
-//                return true;
-//            }
             if (random != Constants.CAN_FLY && (ChessBoard.planeNum.get(9) == ChessBoard.TAG_RED_BASE_1) && (ChessBoard.planeNum.get(10) == ChessBoard.TAG_RED_BASE_2)
                     && (ChessBoard.planeNum.get(11) == ChessBoard.TAG_RED_BASE_3) && (ChessBoard.planeNum.get(12) == ChessBoard.TAG_RED_BASE_4)) {
                 return true;
             }
         }
         if (color == Color.GREEN) {
-//            if (random != Constants.CAN_FLY && !ChessBoard.planes[12].isPre() && !ChessBoard.planes[13].isPre()
-//                    && !ChessBoard.planes[14].isPre() && !ChessBoard.planes[15].isPre()) {
-//                return true;
-//            }
             if (random != Constants.CAN_FLY && (ChessBoard.planeNum.get(13) == ChessBoard.TAG_GREEN_BASE_1) && (ChessBoard.planeNum.get(14) == ChessBoard.TAG_GREEN_BASE_2)
                     && (ChessBoard.planeNum.get(15) == ChessBoard.TAG_GREEN_BASE_3) && (ChessBoard.planeNum.get(16) == ChessBoard.TAG_GREEN_BASE_4)) {
                 return true;
@@ -311,7 +295,7 @@ public class DefaultRuler implements IRuler{
         }
     }
 
-    public void handleYellow(int planeTag, int theSelectedPlaneTag) {    //感觉怪怪的，不知道有没有错呢。。。
+    public void handleYellow(int planeTag, int theSelectedPlaneTag) {    //感觉怪怪的，不知道有没有错呢。。。//怪个鸡~就是有错的
         if (theSelectedPlaneTag == ChessBoard.TAG_YELLOW_PRE) {    //假如在起飞点
             if ((ChessBoard.TAG_YELLOW_START + random - ChessBoard.TAG_YELLOW_JUMP) % 4 == 0) {
                 step = new Step(planeTag, ChessBoard.TAG_YELLOW_START + random + 4);

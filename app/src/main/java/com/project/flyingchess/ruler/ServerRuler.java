@@ -20,6 +20,7 @@ import com.project.flyingchess.eventbus.UpdateGameInfoEvent;
 import com.project.flyingchess.eventbus.UpdateTitleEvent;
 import com.project.flyingchess.model.Message;
 import com.project.flyingchess.model.Step;
+import com.project.flyingchess.other.Constants;
 import com.project.flyingchess.player.ClientPlayer;
 import com.project.flyingchess.player.Player;
 import com.project.flyingchess.utils.Color;
@@ -185,6 +186,7 @@ public class ServerRuler implements IRuler,SalutDataCallback {
             player.restart();
         }
 
+        isStart = true;
         currentPlayer.onYourTurn(true,currentPlayer.getName() + "摇骰子~啦");//hiahiahia~我也觉得自己好白痴。为毛能写这么久
     }
 
@@ -206,6 +208,7 @@ public class ServerRuler implements IRuler,SalutDataCallback {
         if(mList.size() <= 1) {
             Logger.d(mWinnerList.toString());
             EventBus.getDefault().post(mWinnerList);
+            isStart = false;
             return;
         }
         Logger.d(currentIndex + ": current");
@@ -216,23 +219,85 @@ public class ServerRuler implements IRuler,SalutDataCallback {
 
     @Override
     public void dice() {
-        if(isYourTurn){
-            random = randomGen.nextInt(6) + 1;
+        if(isStart){
+            if(isYourTurn){
+                random = randomGen.nextInt(6) + 1;
+                if (isAllCanNotFly(currentPlayer.getColor())){
+                    //通知下一位选手准备~
+                    EventBus.getDefault().post(new UpdateDiceEvent(random));
+                    EventBus.getDefault().post(new UpdateTitleEvent(currentPlayer.getName() + "摇到的点数为：" + random));
 
-            for(Player player:mList){
-                player.think(random);
+                    for(Player player:mList){
+                        if(player != currentPlayer)//就自己不调用~
+                            player.think(random);
+                    }
+
+                    for(Player player:mWinnerList){
+                        player.think(random);
+                    }
+
+                    for(Player player:mEyeList){
+                        player.think(random);
+                    }
+
+                    nextPalyer();
+
+                    for(Player player:mList){
+                        player.onYourTurn(currentPlayer == player,currentPlayer.getName() + "摇骰子啦~");
+                    }
+
+                    for(Player player:mWinnerList){
+                        player.onYourTurn(currentPlayer == player,currentPlayer.getName() + "摇骰子啦~");
+                    }
+
+                    for(Player player:mEyeList){
+                        player.onYourTurn(currentPlayer == player,currentPlayer.getName() + "摇骰子啦~");
+                    }
+
+                }else{//正常的逻辑~
+                    for(Player player:mList){
+                        player.think(random);
+                    }
+
+                    for(Player player:mWinnerList){
+                        player.think(random);
+                    }
+
+                    for(Player player:mEyeList){
+                        player.think(random);
+                    }
+                }
+                isYourTurn = false;
             }
-
-            for(Player player:mWinnerList){
-                player.think(random);
-            }
-
-            for(Player player:mEyeList){
-                player.think(random);
-            }
-
-            isYourTurn = false;
         }
+    }
+
+    public boolean isAllCanNotFly(int color) {
+        if (color == Color.BLUE) {
+            if (random != Constants.CAN_FLY && (ChessBoard.planeNum.get(1) == ChessBoard.TAG_BLUE_BASE_1) && (ChessBoard.planeNum.get(2) == ChessBoard.TAG_BLUE_BASE_2)
+                    && (ChessBoard.planeNum.get(3) == ChessBoard.TAG_BLUE_BASE_3) && (ChessBoard.planeNum.get(4) == ChessBoard.TAG_BLUE_BASE_4)) {
+                return true;
+            }
+        }
+        if (color == Color.YELLOW) {
+            if (random != Constants.CAN_FLY && (ChessBoard.planeNum.get(5) == ChessBoard.TAG_YELLOW_BASE_1) && (ChessBoard.planeNum.get(6) == ChessBoard.TAG_YELLOW_BASE_2)
+                    && (ChessBoard.planeNum.get(7) == ChessBoard.TAG_YELLOW_BASE_3) && (ChessBoard.planeNum.get(8) == ChessBoard.TAG_YELLOW_BASE_4)) {
+                return true;
+            }
+        }
+        if (color == Color.RED) {
+            if (random != Constants.CAN_FLY && (ChessBoard.planeNum.get(9) == ChessBoard.TAG_RED_BASE_1) && (ChessBoard.planeNum.get(10) == ChessBoard.TAG_RED_BASE_2)
+                    && (ChessBoard.planeNum.get(11) == ChessBoard.TAG_RED_BASE_3) && (ChessBoard.planeNum.get(12) == ChessBoard.TAG_RED_BASE_4)) {
+                return true;
+            }
+        }
+        if (color == Color.GREEN) {
+            if (random != Constants.CAN_FLY && (ChessBoard.planeNum.get(13) == ChessBoard.TAG_GREEN_BASE_1) && (ChessBoard.planeNum.get(14) == ChessBoard.TAG_GREEN_BASE_2)
+                    && (ChessBoard.planeNum.get(15) == ChessBoard.TAG_GREEN_BASE_3) && (ChessBoard.planeNum.get(16) == ChessBoard.TAG_GREEN_BASE_4)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -259,7 +324,9 @@ public class ServerRuler implements IRuler,SalutDataCallback {
         }
 
         if(!isEnd){
-            nextPalyer();
+            if (random != Constants.CAN_FLY) {       //摇到6就奖励一次//这个逻辑我很满意~233
+                nextPalyer();
+            }
             for(Player player:mList){
                 player.onYourTurn(currentPlayer == player,currentPlayer.getName() + "摇骰子啦~");
             }
@@ -271,7 +338,7 @@ public class ServerRuler implements IRuler,SalutDataCallback {
             for(Player player:mEyeList){
                 player.onYourTurn(currentPlayer == player,currentPlayer.getName() + "摇骰子啦~");
             }
-        }else{
+        }else{//如果结束的话~就给大家发送结束的~通知呗。就是这个样子~
             for(Player player:mList){
                 player.end(mWinnerList);
             }
@@ -290,179 +357,205 @@ public class ServerRuler implements IRuler,SalutDataCallback {
         Step step = null;
         switch (currentPlayer.getColor()){
             case Color.BLUE:
-                if(ChessBoard.TAG_LARGE <= theSelectedPlaneTag || ChessBoard.TAG_SMALL >= theSelectedPlaneTag)
-                    if((ChessBoard.TAG_BLUE_START + random - ChessBoard.TAG_BLUE_JUMP) % 4 == 0)
-                        step = new Step(planeTag,ChessBoard.TAG_BLUE_START + random + 4);
-                    else
-                        step = new Step(planeTag,ChessBoard.TAG_BLUE_START + random);
-                else if(0 < theSelectedPlaneTag && theSelectedPlaneTag <= ChessBoard.TAG_BLUE_CORNER){
-                    if(theSelectedPlaneTag + random < ChessBoard.TAG_BLUE_CORNER)
-                        if((theSelectedPlaneTag + random - ChessBoard.TAG_BLUE_JUMP) % 4 == 0){
-                            step = new Step(planeTag,theSelectedPlaneTag + random + 4);
-                        } else {
-                            step = new Step(planeTag,theSelectedPlaneTag + random);
-                        }
-                    else if(theSelectedPlaneTag + random == ChessBoard.TAG_BLUE_CORNER){
-                        step = new Step(planeTag,ChessBoard.TAG_BLUE_CORNER);
-                    }else{
-                        step = new Step(planeTag,ChessBoard.TAG_BLUE_CORNER_START + theSelectedPlaneTag + random - ChessBoard.TAG_BLUE_CORNER);
+                if (theSelectedPlaneTag == ChessBoard.TAG_BLUE_PRE) {    //假如在起飞点
+                    if ((ChessBoard.TAG_BLUE_START + random - ChessBoard.TAG_BLUE_JUMP) % 4 == 0) {
+                        step = new Step(planeTag, ChessBoard.TAG_BLUE_START + random + 4);
+                    } else {
+                        step = new Step(planeTag, ChessBoard.TAG_BLUE_START + random);
                     }
-                }else{
-                    if(theSelectedPlaneTag + random <= ChessBoard.TAG_BLUE_END){
-                        step = new Step(planeTag,theSelectedPlaneTag + random);
-                        if(theSelectedPlaneTag + random == ChessBoard.TAG_BLUE_END){
-                            mFinishMap.put(currentPlayer,mFinishMap.get(currentPlayer)+1);
-                            if(mFinishMap.get(currentPlayer) == FINISH_NUM){
-                                currentPlayer.setFinish(true);
-                                mWinnerList.add(currentPlayer);
-                                if(mList.size() <= 1) {
-                                    Logger.d(mWinnerList.toString());
-                                    EventBus.getDefault().post(mWinnerList);
-                                    isEnd = true;
+                } else {                                                      //不在起飞点
+                    if (0 < theSelectedPlaneTag && theSelectedPlaneTag <= ChessBoard.TAG_BLUE_CORNER) {   //在外环途中
+                        if (theSelectedPlaneTag + random < ChessBoard.TAG_BLUE_CORNER) {                   //加上点数都还在外环
+                            if (theSelectedPlaneTag + random == ChessBoard.TAG_BLUE_DOUBLE_JUMP_START1) {     //第一种连跳
+                                step = new Step(planeTag, ChessBoard.TAG_BLUE_DOUBLE_JUMP_END1);
+                            } else if (theSelectedPlaneTag + random == ChessBoard.TAG_BLUE_DOUBLE_JUMP_START2) {   //第二种连跳
+                                step = new Step(planeTag, ChessBoard.TAG_BLUE_DOUBLE_JUMP_END2);
+                            } else if ((theSelectedPlaneTag + random - ChessBoard.TAG_BLUE_JUMP) % 4 == 0) {
+                                step = new Step(planeTag, theSelectedPlaneTag + random + 4);
+                            } else {
+                                step = new Step(planeTag, theSelectedPlaneTag + random);
+                            }
+                        } else if (theSelectedPlaneTag + random == ChessBoard.TAG_BLUE_CORNER) {
+                            step = new Step(planeTag, ChessBoard.TAG_BLUE_CORNER);
+                        } else {
+                            step = new Step(planeTag, ChessBoard.TAG_BLUE_CORNER_START + theSelectedPlaneTag + random - ChessBoard.TAG_BLUE_CORNER);
+                        }
+                    } else{
+                        if(theSelectedPlaneTag + random <= ChessBoard.TAG_BLUE_END){
+                            step = new Step(planeTag,theSelectedPlaneTag + random);
+                            if(theSelectedPlaneTag + random == ChessBoard.TAG_BLUE_END){
+                                mFinishMap.put(currentPlayer,mFinishMap.get(currentPlayer)+1);
+                                if(mFinishMap.get(currentPlayer) == FINISH_NUM){
+                                    currentPlayer.setFinish(true);
+                                    mWinnerList.add(currentPlayer);
                                 }
                             }
                         }
-                    }
-                    else
-                        step = new Step(planeTag,ChessBoard.TAG_BLUE_END * 2 - (theSelectedPlaneTag + random));
-                }
-                /*else if(theSelectedPlaneTag + random <= ChessBoard.TAG_BLUE_CORNER){
-                    step = new Step(planeTag,theSelectedPlaneTag + random);
-                }else{
-                    if(theSelectedPlaneTag < ChessBoard.TAG_BLUE_CORNER){
-                        step = new Step(planeTag,ChessBoard.TAG_BLUE_CORNER_START + theSelectedPlaneTag + random - ChessBoard.TAG_BLUE_CORNER);
-                    }else{
-                        if(theSelectedPlaneTag + random <= ChessBoard.TAG_BLUE_END)
-                            step = new Step(planeTag,theSelectedPlaneTag + random);
                         else
                             step = new Step(planeTag,ChessBoard.TAG_BLUE_END * 2 - (theSelectedPlaneTag + random));
                     }
-                }*/
-                break;
-            case Color.YELLOW:
-                if(ChessBoard.TAG_LARGE <= theSelectedPlaneTag || ChessBoard.TAG_SMALL >= theSelectedPlaneTag)
-                    if((ChessBoard.TAG_YELLOW_START + random - ChessBoard.TAG_YELLOW_JUMP) % 4 == 0)
-                        step = new Step(planeTag,ChessBoard.TAG_YELLOW_START + random + 4);
-                    else
-                        step = new Step(planeTag,ChessBoard.TAG_YELLOW_START + random);
-                else if(0 < theSelectedPlaneTag && theSelectedPlaneTag <= ChessBoard.TAG_YELLOW_CORNER) {
-                    if(theSelectedPlaneTag + random < ChessBoard.TAG_YELLOW_CORNER)
-                        if((ChessBoard.TAG_YELLOW_JUMP - theSelectedPlaneTag - random) % 4 == 0)
-                            step = new Step(planeTag,theSelectedPlaneTag + random + 4);
-                        else
-                            step = new Step(planeTag,theSelectedPlaneTag + random);
-                    else if(theSelectedPlaneTag + random == ChessBoard.TAG_YELLOW_CORNER){
-                        step = new Step(planeTag,ChessBoard.TAG_YELLOW_CORNER);
-                    }else{
-                        step = new Step(planeTag,ChessBoard.TAG_YELLOW_CORNER_START + theSelectedPlaneTag + random - ChessBoard.TAG_YELLOW_CORNER);
-                    }
-                }else if(ChessBoard.TAG_YELLOW_CORNER_START < theSelectedPlaneTag && theSelectedPlaneTag <= ChessBoard.TAG_YELLOW_END){
-                    if(theSelectedPlaneTag + random <= ChessBoard.TAG_YELLOW_END){
-                        step = new Step(planeTag,theSelectedPlaneTag + random);
-                        if(theSelectedPlaneTag + random == ChessBoard.TAG_YELLOW_END){
-                            mFinishMap.put(currentPlayer,mFinishMap.get(currentPlayer)+1);
-                            if(mFinishMap.get(currentPlayer) == FINISH_NUM){
-                                currentPlayer.setFinish(true);
-                                mWinnerList.add(currentPlayer);
-                                if(mList.size() <= 1) {
-                                    Logger.d(mWinnerList.toString());
-                                    EventBus.getDefault().post(mWinnerList);
-                                    isEnd = true;
-                                }
-                            }
-                        }
-                    }
-                    else
-                        step = new Step(planeTag,ChessBoard.TAG_YELLOW_END * 2 - (theSelectedPlaneTag + random));
-                }else /* if(theSelectedPlaneTag <= ChessBoard.TAG_RECTANGLE_LARGE)*/{
-                    if((theSelectedPlaneTag + random - ChessBoard.TAG_YELLOW_JUMP) % 4 == 0)
-                        step = new Step(planeTag,(theSelectedPlaneTag + random + 4) % ChessBoard.TAG_RECTANGLE_LARGE);
-                    else
-                        step = new Step(planeTag,(theSelectedPlaneTag + random) % ChessBoard.TAG_RECTANGLE_LARGE);
                 }
                 break;
-            case Color.RED:
-                if(ChessBoard.TAG_LARGE <= theSelectedPlaneTag || ChessBoard.TAG_SMALL >= theSelectedPlaneTag)
-                    if((ChessBoard.TAG_RED_START + random - ChessBoard.TAG_RED_JUMP) % 4 == 0)
-                        step = new Step(planeTag,ChessBoard.TAG_RED_START + random + 4);
-                    else
-                        step = new Step(planeTag,ChessBoard.TAG_RED_START + random);
-                else if(0 < theSelectedPlaneTag && theSelectedPlaneTag <= ChessBoard.TAG_RED_CORNER) {
-                    if(theSelectedPlaneTag + random < ChessBoard.TAG_RED_CORNER)
-                        if((ChessBoard.TAG_RED_JUMP - theSelectedPlaneTag - random) % 4 == 0)
-                            step = new Step(planeTag,theSelectedPlaneTag + random + 4);
-                        else
-                            step = new Step(planeTag,theSelectedPlaneTag + random);
-                    else if(theSelectedPlaneTag + random == ChessBoard.TAG_RED_CORNER){
-                        step = new Step(planeTag,ChessBoard.TAG_RED_CORNER);
-                    }else{
-                        step = new Step(planeTag,ChessBoard.TAG_RED_CORNER_START + theSelectedPlaneTag + random - ChessBoard.TAG_RED_CORNER);
+            case Color.YELLOW:
+                if (theSelectedPlaneTag == ChessBoard.TAG_YELLOW_PRE) {    //假如在起飞点
+                    if ((ChessBoard.TAG_YELLOW_START + random - ChessBoard.TAG_YELLOW_JUMP) % 4 == 0) {
+                        step = new Step(planeTag, ChessBoard.TAG_YELLOW_START + random + 4);
+                    } else {
+                        step = new Step(planeTag, ChessBoard.TAG_YELLOW_START + random);
                     }
-                }else if(ChessBoard.TAG_RED_CORNER_START < theSelectedPlaneTag && theSelectedPlaneTag <= ChessBoard.TAG_RED_END){
-                    if(theSelectedPlaneTag + random <= ChessBoard.TAG_RED_END){
-                        step = new Step(planeTag,theSelectedPlaneTag + random);
-                        if(theSelectedPlaneTag + random == ChessBoard.TAG_RED_END){
-                            mFinishMap.put(currentPlayer,mFinishMap.get(currentPlayer)+1);
-                            if(mFinishMap.get(currentPlayer) == FINISH_NUM){
-                                currentPlayer.setFinish(true);
-                                mWinnerList.add(currentPlayer);
-                                if(mList.size() <= 1) {
-                                    Logger.d(mWinnerList.toString());
-                                    EventBus.getDefault().post(mWinnerList);
-                                    isEnd = true;
+                } else {                                                      //不在起飞点
+                    if (ChessBoard.TAG_YELLOW_START < theSelectedPlaneTag && theSelectedPlaneTag <= ChessBoard.TAG_RECTANGLE_LARGE) {
+                        if (theSelectedPlaneTag + random == ChessBoard.TAG_YELLOW_DOUBLE_JUMP_START1) {     //先解决特殊的几个点
+                            step = new Step(planeTag, ChessBoard.TAG_YELLOW_DOUBLE_JUMP_END1);
+                        } else if (theSelectedPlaneTag + random == ChessBoard.TAG_YELLOW_DOUBLE_JUMP_START2) {
+                            step = new Step(planeTag, ChessBoard.TAG_YELLOW_DOUBLE_JUMP_END2);
+                        } else if (theSelectedPlaneTag + random == ChessBoard.TAG_RECTANGLE_LARGE - 1) {
+                            step = new Step(planeTag, 3);
+                        } else if (theSelectedPlaneTag + random > ChessBoard.TAG_RECTANGLE_LARGE) {
+                            if ((theSelectedPlaneTag + random) % ChessBoard.TAG_RECTANGLE_LARGE == 3) {
+                                step = new Step(planeTag, 7);
+                            } else {
+                                step = new Step(planeTag, theSelectedPlaneTag + random - ChessBoard.TAG_RECTANGLE_LARGE);
+                            }
+                        } else if ((theSelectedPlaneTag + random - ChessBoard.TAG_YELLOW_JUMP) % 4 == 0) {
+                            step = new Step(planeTag, theSelectedPlaneTag + random + 4);
+                        } else {
+                            step = new Step(planeTag, theSelectedPlaneTag + random);
+                        }
+                    } else if (0 < theSelectedPlaneTag && theSelectedPlaneTag <= ChessBoard.TAG_YELLOW_CORNER) {
+                        if (theSelectedPlaneTag + random < ChessBoard.TAG_YELLOW_CORNER) {
+                            if ((theSelectedPlaneTag + random - ChessBoard.TAG_YELLOW_JUMP) % 4 == 0) {
+                                step = new Step(planeTag, theSelectedPlaneTag + random + 4);
+                            } else {
+                                step = new Step(planeTag, theSelectedPlaneTag + random);
+                            }
+                        } else if (theSelectedPlaneTag + random == ChessBoard.TAG_YELLOW_CORNER) {
+                            step = new Step(planeTag, ChessBoard.TAG_YELLOW_CORNER);
+                        } else {
+                            step = new Step(planeTag, theSelectedPlaneTag + random - ChessBoard.TAG_YELLOW_CORNER + ChessBoard.TAG_YELLOW_CORNER_START);
+                        }
+                    } else {
+                        if (theSelectedPlaneTag + random <= ChessBoard.TAG_YELLOW_END) {
+                            step = new Step(planeTag,theSelectedPlaneTag + random);
+                            if (theSelectedPlaneTag + random == ChessBoard.TAG_YELLOW_END) {
+                                mFinishMap.put(currentPlayer,mFinishMap.get(currentPlayer)+1);
+                                if (mFinishMap.get(currentPlayer) == FINISH_NUM) {
+                                    currentPlayer.setFinish(true);
+                                    mWinnerList.add(currentPlayer);
                                 }
                             }
+                        } else {
+                            step = new Step(planeTag, ChessBoard.TAG_YELLOW_END * 2 - (theSelectedPlaneTag + random));
                         }
                     }
-                    else
-                        step = new Step(planeTag,ChessBoard.TAG_RED_END * 2 - (theSelectedPlaneTag + random));
-                }else /* if(theSelectedPlaneTag <= ChessBoard.TAG_RECTANGLE_LARGE)*/{
-                    if((theSelectedPlaneTag + random - ChessBoard.TAG_RED_JUMP) % 4 == 0)
-                        step = new Step(planeTag,(theSelectedPlaneTag + random + 4) % ChessBoard.TAG_RECTANGLE_LARGE);
-                    else
-                        step = new Step(planeTag,(theSelectedPlaneTag + random) % ChessBoard.TAG_RECTANGLE_LARGE);
                 }
                 break;
             case Color.GREEN:
-                if(ChessBoard.TAG_LARGE <= theSelectedPlaneTag || ChessBoard.TAG_SMALL >= theSelectedPlaneTag)
-                    if((ChessBoard.TAG_GREEN_START + random - ChessBoard.TAG_GREEN_JUMP) % 4 == 0)
-                        step = new Step(planeTag,ChessBoard.TAG_GREEN_START + random + 4);
-                    else
-                        step = new Step(planeTag,ChessBoard.TAG_GREEN_START + random);
-                else if(0 < theSelectedPlaneTag && theSelectedPlaneTag <= ChessBoard.TAG_GREEN_CORNER) {
-                    if(theSelectedPlaneTag + random < ChessBoard.TAG_GREEN_CORNER)
-                        if((ChessBoard.TAG_GREEN_JUMP - theSelectedPlaneTag - random) % 4 == 0)
-                            step = new Step(planeTag,theSelectedPlaneTag + random + 4);
-                        else
-                            step = new Step(planeTag,theSelectedPlaneTag + random);
-                    else if(theSelectedPlaneTag + random == ChessBoard.TAG_GREEN_CORNER){
-                        step = new Step(planeTag,ChessBoard.TAG_GREEN_CORNER);
-                    }else{
-                        step = new Step(planeTag,ChessBoard.TAG_GREEN_CORNER_START + theSelectedPlaneTag + random - ChessBoard.TAG_GREEN_CORNER);
+                if (theSelectedPlaneTag == ChessBoard.TAG_GREEN_PRE) {    //假如在起飞点
+                    if ((ChessBoard.TAG_GREEN_START + random - ChessBoard.TAG_GREEN_JUMP) % 4 == 0) {
+                        step = new Step(planeTag, ChessBoard.TAG_GREEN_START + random + 4);
+                    } else {
+                        step = new Step(planeTag, ChessBoard.TAG_GREEN_START + random);
                     }
-                }else if(ChessBoard.TAG_GREEN_CORNER_START < theSelectedPlaneTag && theSelectedPlaneTag <= ChessBoard.TAG_GREEN_END){
-                    if(theSelectedPlaneTag + random <= ChessBoard.TAG_GREEN_END){
-                        step = new Step(planeTag,theSelectedPlaneTag + random);
-                        if(theSelectedPlaneTag + random == ChessBoard.TAG_GREEN_END){
-                            mFinishMap.put(currentPlayer,mFinishMap.get(currentPlayer)+1);
-                            if(mFinishMap.get(currentPlayer) == FINISH_NUM){
-                                currentPlayer.setFinish(true);
-                                mWinnerList.add(currentPlayer);
-                                if(mList.size() <= 1) {
-                                    Logger.d(mWinnerList.toString());
-                                    EventBus.getDefault().post(mWinnerList);
-                                    isEnd = true;
+                } else {                                                      //不在起飞点
+                    if (ChessBoard.TAG_GREEN_START < theSelectedPlaneTag && theSelectedPlaneTag <= ChessBoard.TAG_RECTANGLE_LARGE) {
+                        if (theSelectedPlaneTag + random == ChessBoard.TAG_RECTANGLE_LARGE - 3) {
+                            step = new Step(planeTag, 1);
+                        } else if (theSelectedPlaneTag + random > ChessBoard.TAG_RECTANGLE_LARGE) {
+                            if ((theSelectedPlaneTag + random) % ChessBoard.TAG_RECTANGLE_LARGE == ChessBoard.TAG_GREEN_DOUBLE_JUMP_START1) {
+                                step = new Step(planeTag, ChessBoard.TAG_GREEN_DOUBLE_JUMP_END1);
+                            } else if ((theSelectedPlaneTag + random) % ChessBoard.TAG_RECTANGLE_LARGE == ChessBoard.TAG_GREEN_DOUBLE_JUMP_START2) {
+                                step = new Step(planeTag, ChessBoard.TAG_GREEN_DOUBLE_JUMP_END2);
+                            } else {
+                                step = new Step(planeTag, theSelectedPlaneTag + random - ChessBoard.TAG_RECTANGLE_LARGE);
+                            }
+                        } else if ((theSelectedPlaneTag + random - ChessBoard.TAG_GREEN_JUMP) % 4 == 0) {
+                            step = new Step(planeTag, theSelectedPlaneTag + random + 4);
+                        } else {
+                            step = new Step(planeTag, theSelectedPlaneTag + random);
+                        }
+                    } else if (0 < theSelectedPlaneTag && theSelectedPlaneTag <= ChessBoard.TAG_GREEN_CORNER) {
+                        if (theSelectedPlaneTag + random == ChessBoard.TAG_GREEN_DOUBLE_JUMP_START2) {
+                            step = new Step(planeTag, ChessBoard.TAG_GREEN_DOUBLE_JUMP_END2);
+                        } else if (theSelectedPlaneTag + random < ChessBoard.TAG_GREEN_CORNER) {
+                            if ((theSelectedPlaneTag + random - ChessBoard.TAG_GREEN_JUMP) % 4 == 0) {
+                                step = new Step(planeTag, theSelectedPlaneTag + random + 4);
+                            } else {
+                                step = new Step(planeTag, theSelectedPlaneTag + random);
+                            }
+                        } else if (theSelectedPlaneTag + random == ChessBoard.TAG_GREEN_CORNER) {
+                            step = new Step(planeTag, ChessBoard.TAG_GREEN_CORNER);
+                        } else {
+                            step = new Step(planeTag, theSelectedPlaneTag + random - ChessBoard.TAG_GREEN_CORNER + ChessBoard.TAG_GREEN_CORNER_START);
+                        }
+                    } else {
+                        if (theSelectedPlaneTag + random <= ChessBoard.TAG_GREEN_END) {
+                            step = new Step(planeTag,theSelectedPlaneTag + random);
+                            if (theSelectedPlaneTag + random == ChessBoard.TAG_GREEN_END) {
+                                mFinishMap.put(currentPlayer,mFinishMap.get(currentPlayer)+1);
+                                if (mFinishMap.get(currentPlayer) == FINISH_NUM) {
+                                    currentPlayer.setFinish(true);
+                                    mWinnerList.add(currentPlayer);
                                 }
                             }
+                        } else {
+                            step = new Step(planeTag, ChessBoard.TAG_GREEN_END * 2 - (theSelectedPlaneTag + random));
                         }
                     }
-                    else
-                        step = new Step(planeTag,ChessBoard.TAG_GREEN_END * 2 - (theSelectedPlaneTag + random));
-                }else /* if(theSelectedPlaneTag <= ChessBoard.TAG_RECTANGLE_LARGE)*/{
-                    if((theSelectedPlaneTag + random - ChessBoard.TAG_GREEN_JUMP) % 4 == 0)
-                        step = new Step(planeTag,(theSelectedPlaneTag + random + 4) % ChessBoard.TAG_RECTANGLE_LARGE);
-                    else
-                        step = new Step(planeTag,(theSelectedPlaneTag + random) % ChessBoard.TAG_RECTANGLE_LARGE);
+                }
+                break;
+            case Color.RED:
+                if (theSelectedPlaneTag == ChessBoard.TAG_RED_PRE) {    //假如在起飞点
+                    if ((ChessBoard.TAG_RED_START + random - ChessBoard.TAG_RED_JUMP) % 4 == 0) {
+                        step = new Step(planeTag, ChessBoard.TAG_RED_START + random + 4);
+                    } else {
+                        step = new Step(planeTag, ChessBoard.TAG_RED_START + random);
+                    }
+                } else {                                                      //不在起飞点
+                    if (ChessBoard.TAG_RED_START < theSelectedPlaneTag && theSelectedPlaneTag <= ChessBoard.TAG_RECTANGLE_LARGE) {
+                        if (theSelectedPlaneTag + random == ChessBoard.TAG_RED_DOUBLE_JUMP_START1) {     //先解决特殊的几个点
+                            step = new Step(planeTag, ChessBoard.TAG_RED_DOUBLE_JUMP_END1);
+                        } else if (theSelectedPlaneTag + random == ChessBoard.TAG_RED_DOUBLE_JUMP_START2) {
+                            step = new Step(planeTag, ChessBoard.TAG_RED_DOUBLE_JUMP_END2);
+                        } else if (theSelectedPlaneTag + random == ChessBoard.TAG_RECTANGLE_LARGE) {
+                            step = new Step(planeTag, 4);
+                        } else if (theSelectedPlaneTag + random > ChessBoard.TAG_RECTANGLE_LARGE) {
+                            if ((theSelectedPlaneTag + random) % ChessBoard.TAG_RECTANGLE_LARGE == 4) {
+                                step = new Step(planeTag, 8);
+                            } else {
+                                step = new Step(planeTag, theSelectedPlaneTag + random - ChessBoard.TAG_RECTANGLE_LARGE);
+                            }
+                        } else if ((theSelectedPlaneTag + random - ChessBoard.TAG_RED_JUMP) % 4 == 0) {
+                            step = new Step(planeTag, theSelectedPlaneTag + random + 4);
+                        } else {
+                            step = new Step(planeTag, theSelectedPlaneTag + random);
+                        }
+                    } else if (0 < theSelectedPlaneTag && theSelectedPlaneTag <= ChessBoard.TAG_RED_CORNER) {
+                        if (theSelectedPlaneTag + random < ChessBoard.TAG_RED_CORNER) {
+                            if ((theSelectedPlaneTag + random - ChessBoard.TAG_RED_JUMP) % 4 == 0) {
+                                step = new Step(planeTag, theSelectedPlaneTag + random + 4);
+                            } else {
+                                step = new Step(planeTag, theSelectedPlaneTag + random);
+                            }
+                        } else if (theSelectedPlaneTag + random == ChessBoard.TAG_RED_CORNER) {
+                            step = new Step(planeTag, ChessBoard.TAG_RED_CORNER);
+                        } else {
+                            step = new Step(planeTag, theSelectedPlaneTag + random - ChessBoard.TAG_RED_CORNER + ChessBoard.TAG_RED_CORNER_START);
+                        }
+                    } else {
+                        if (theSelectedPlaneTag + random <= ChessBoard.TAG_RED_END) {
+                            step = new Step(planeTag,theSelectedPlaneTag + random);
+                            if (theSelectedPlaneTag + random == ChessBoard.TAG_RED_END) {
+                                mFinishMap.put(currentPlayer,mFinishMap.get(currentPlayer)+1);
+                                if (mFinishMap.get(currentPlayer) == FINISH_NUM) {
+                                    currentPlayer.setFinish(true);
+                                    mWinnerList.add(currentPlayer);
+                                }
+                            }
+                        } else {
+                            step = new Step(planeTag, ChessBoard.TAG_RED_END * 2 - (theSelectedPlaneTag + random));
+                        }
+                    }
                 }
                 break;
         }
@@ -514,8 +607,24 @@ public class ServerRuler implements IRuler,SalutDataCallback {
                     }
 
                     random = message.mRandom;
+
                     EventBus.getDefault().post(new UpdateDiceEvent(message.mRandom));
                     EventBus.getDefault().post(new UpdateTitleEvent(mContext.getString(R.string.dicing) + message.mRandom));
+
+                    if (isAllCanNotFly(message.mChessColor)){//如果对方都还不能起飞~那我们就忽略它吧~╮(╯▽╰)╭//这里本不应该这么做。
+                        nextPalyer();
+                        for(Player player:mList){
+                            player.onYourTurn(currentPlayer == player,currentPlayer.getName() + "摇骰子啦~");
+                        }
+
+                        for(Player player:mWinnerList){
+                            player.onYourTurn(currentPlayer == player,currentPlayer.getName() + "摇骰子啦~");
+                        }
+
+                        for(Player player:mEyeList){
+                            player.onYourTurn(currentPlayer == player,currentPlayer.getName() + "摇骰子啦~");
+                        }
+                    }
                     break;
                 case Message.MSG_TYPE_SELECT_PLANE:
                     handle(message.mPlaneTag,message.mTheSelectedPlaneTag);
