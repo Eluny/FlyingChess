@@ -20,7 +20,12 @@ Hello FlyingChess~
   2.打通联网游戏的业务逻辑,但是没有测试没有测试没有测试,没有硬件设备支持啊,我都是靠脑补的啊...心好累</br>
 4月24日：
   对同一wifi下联机游戏的测试，改了些许bug~尽可能做到和单机游戏一样的交互...总归还是有bug的。但是...思路就是这个样子的。</br>
-  ps:非常恶心。但是会坚持...
+  ps:非常恶心。但是会坚持...</br>
+4月29日：</br>
+  1.完善了单机游戏和联网游戏的飞行棋逻辑,如投到六可以再来一发介样子.</br>
+  2.做了骰子的动效。</br>
+  3.做了一个非常基础的AIPlayer.</br>
+  4.增加了继续游戏的功能~</br>
 ###补充：
   1.类图关系：</br>
   ![UML](https://github.com/Eluny/FlyingChess/blob/master/UML20160422.png?raw=true)</br>
@@ -28,4 +33,6 @@ Hello FlyingChess~
   3.棋盘跳转的逻辑：贴两张图,自己体会:
   ![代码~](http://7xor0b.com1.z0.glb.clouddn.com/flychess_1.png)
   ![图解~](http://7xor0b.com1.z0.glb.clouddn.com/flychess_2.png)
-
+  </br>
+  4.项目结构</br>
+  ![项目结构](https://github.com/Eluny/FlyingChess/blob/master/%E5%9B%BE%E7%89%8720160429104148.png?raw=true)
